@@ -10,7 +10,7 @@ cmake ..
 cmake --build .
 ```
 
-if an example requires GUI, call this macro to check DLIB_NO_GUI_SUPPORT to include or exclude
+if an example requires GUI, check this macro below to DLIB_NO_GUI_SUPPORT=OFF and confirm in CMakeLists.txt
 ```
 macro(add_gui_example name)
    if (DLIB_NO_GUI_SUPPORT=OFF)
