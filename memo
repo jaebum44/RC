@@ -1,0 +1,7 @@
+git clone https://github.com/...
+git pull
+# git add <file name>
+# git rm <file name>
+# ...
+git commit -m "<message>"
+git push
