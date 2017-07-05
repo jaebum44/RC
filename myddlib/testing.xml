@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<?xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'?>
+<dataset>
+<name>imglab dataset</name>
+<comment>Created by imglab tool.</comment>
+<images>
+  <image file='/home/subin/Desktop/myddlib/test/img_20140512092731_9077b3a5.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/강남대로122길 서울특별시 강남구 논현동 2016.4.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/동작대로35아길 서울특별시 동작구 사당동 2014.11.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/방배로42길 서울특별시 서초구 방배동 2014.10.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/사당로23나길 서울특별시 동작구 사당동 2014.10.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/사임당로 서울특별시 서초구 서초동 2016.5.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/선릉로68길 서울특별시 강남구 대치동 2014.11.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/신반포로23길 서울특별시 서초구 잠원동 2014.10.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/영동대로4길 서울특별시 강남구 일원동 2014.10.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/영동대로71길 서울특별시 강남구 대치동 2014.11.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/청두곶3길 서울특별시 서초구 방배동 2014.11.jpg'>
+  </image>
+  <image file='/home/subin/Desktop/myddlib/test/효령로4길 서울특별시 서초구 방배동 2014.11.jpg'>
+  </image>
+</images>
+</dataset>
