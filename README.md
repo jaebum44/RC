@@ -1,4 +1,4 @@
-# 자율주행차 프로젝트
+# traffic signs detection using fhog_object_detector
 
 ## Build
 
