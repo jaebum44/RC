@@ -49,8 +49,8 @@ dlib/tools/imglab/build/imglab testing.xml
 To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with .xml files in it. 
 
 ```
-dlib/example/build/fhog_object_detector /path/to/dir/image
+dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 ```
 
-The detector will show test images with marks on and be saved to the file `detector.svm`. 
+The detector will show test images with marks on and be saved to the file `face_detector.svm`. 
 
