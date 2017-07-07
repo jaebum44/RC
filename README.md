@@ -3,6 +3,7 @@
 ## Build
 
 ```
+sudo su
 cd dlib/example
 mkdir build
 cd build 
