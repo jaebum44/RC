@@ -61,8 +61,7 @@ cd dlib/example/
 cp fhog_object_detector_ex.cpp fhog_object_detector2_ex.cpp
 g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg fhog_object_detector2_ex.cpp -o fhog_object_detector2_ex `pkg-config --cflags --libs opencv` 
 ```
-Note : `yourownfile_ex.cpp -o yourownfile_ex` This format is crucial. 
-
-Note : There's another way to compile using `make` in dir/build. But you have to make your own customized CMakeLists.txt to do that. 
+Note :  This format is crucial. `yourownfile_ex.cpp -o yourownfile_ex` 
+Note : There's another way to compile using `make` in dir/build. In this case you have to make your own customized CMakeLists.txt 
 
 
