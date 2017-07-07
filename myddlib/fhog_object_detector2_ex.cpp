@@ -1,6 +1,7 @@
 //This code is a modification of dlib/example/fhog_object_detection_ex.cpp 
 //to import an image.jpg(not from folder to image array) from folder and detect a traffic sign in it 
-//using trained model.svm file which also comes from fhog_object_detection training.  
+//using trained model.svm file which also comes from fhog_object_detection training.
+//You can test it by ./fhog_object_detector2_ex /path/to/yourimage.jpg
 
 
 #include <dlib/svm_threaded.h>
