@@ -52,5 +52,16 @@ To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to 
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 ```
 
-The detector will show test images with marks on and be saved to the file `face_detector.svm`. 
+The detector will show test images with marks on and be saved to the file `face_detector.svm`.
+
+## How to reuse `face_detector.svm` in your project 
+
+```
+cd dlib/example/
+cp fhog_object_detector_ex.cpp fhog_object_detector2_ex.cpp
+g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg fhog_object_detector2_ex.cpp -o fhog_object_detector2_ex `pkg-config --cflags --libs opencv` 
+```
+Note : `yourownfile_ex.cpp -o yourownfile_ex` <- this format is crucial. 
+There's another way to compile using `make` in dir/build. But you have to make your own customized CMakeLists.txt to do that. 
+
 
