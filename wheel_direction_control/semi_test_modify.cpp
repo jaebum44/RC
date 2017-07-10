@@ -27,7 +27,8 @@ float servo = 0;
 
 void* servo_control(void*);
 void* web_opencv(void*);
-void* cam_thread(void*);
+void* cam_thread_left(void*);
+void* cam_thread_right(void*);
 void* line_left(void*);
 void* line_right(void*);
 
@@ -63,7 +64,7 @@ int main()
 	return 0;
 }
 
-Mat src, dst[2], color_dst[2], saveBlur[2];
+Mat src, dst[2], color_dst[2], blur[2];
 int positionRectY[2];
 vector<Vec4i> lines[2];
 float saveServo[2];
@@ -76,9 +77,10 @@ void* web_opencv(void* arg)
 
 	VideoCapture cap(0);
 
+	cap>>src;
+
 	while(1)
 	{
-		cap>>src;
 
         positionRectY[0] = 0;
         positionRectY[1] = src.rows/2;
@@ -86,14 +88,14 @@ void* web_opencv(void* arg)
     	pthread_create(
             &pid[0],
             NULL,
-            cam_thread,
+            cam_thread_left,
             (void*)&idx0
         );
     
     	pthread_create(
             &pid[1],
             NULL,
-            cam_thread,
+            cam_thread_right,
             (void*)&idx1
         );
     
@@ -162,14 +164,13 @@ void*servo_control(void*arg)
             PWM,
             servo
         );
-		delay(200);
+		delay(100);
 	}
 }
 
-void* cam_thread(void* value)
+void* cam_thread_left(void* value)
 {
     int idx = *((int*)value);
-    Mat blur;
 
     Rect roi(
         0, 
@@ -183,21 +184,21 @@ void* cam_thread(void* value)
 
     GaussianBlur( // reduce line detect
         image_rot,
-        blur,
+        blur[0],
         Size(9, 9),
-        2, 0
+        1.5, 0
     );
 
     erode(
-        blur,
-        blur,
+        blur[0],
+        blur[0],
         Mat(),
         Point(-1, -1)
     );
 
     dilate(
-        blur,
-        blur,
+        blur[0],
+        blur[0],
         Mat(),
         Point(-1, -1)
     );
@@ -206,7 +207,7 @@ void* cam_thread(void* value)
     http://hongkwan.blogspot.kr/2013/01/opencv-5-1-example.html */
 
     Canny(
-        blur,
+        blur[0],
         dst[idx],
         150, 200,
         3
@@ -226,8 +227,67 @@ void* cam_thread(void* value)
         50, 30,
         10
     ); // http://docs.opencv.org/2.4/modules/imgproc/doc/feature_detection.html?highlight=houghlinesp#void HoughLinesP(InputArray image, OutputArray lines, double rho, double theta, int threshold, double minLineLength, double maxLineGap)
+}
 
-    memcpy(saveBlur[idx], blur, sizeof(blur));
+void* cam_thread_right(void* value)
+{
+    int idx = *((int*)value);
+
+    Rect roi(
+        0, 
+        positionRectY[idx],
+        src.cols,
+        src.rows/2
+    );
+
+    Mat image_rot = \
+        src(roi);
+
+    GaussianBlur( // reduce line detect
+        image_rot,
+        blur[1],
+        Size(9, 9),
+        1.5, 0
+    );
+
+    erode(
+        blur[1],
+        blur[1],
+        Mat(),
+        Point(-1, -1)
+    );
+
+    dilate(
+        blur[1],
+        blur[1],
+        Mat(),
+        Point(-1, -1)
+    );
+
+/* reason of used erode, dilate function: \
+    http://hongkwan.blogspot.kr/2013/01/opencv-5-1-example.html */
+
+    Canny(
+        blur[1],
+        dst[idx],
+        150, 200,
+        3
+    );
+
+    cvtColor(
+        dst[idx],
+        color_dst[idx],
+        CV_GRAY2BGR
+    );
+
+    HoughLinesP(
+        dst[idx],
+        lines[idx],
+        1,
+        CV_PI/180,
+        50, 30,
+        10
+    ); // http://docs.opencv.org/2.4/modules/imgproc/doc/feature_detection.html?highlight=houghlinesp#void HoughLinesP(InputArray image, OutputArray lines, double rho, double theta, int threshold, double minLineLength, double maxLineGap)
 }
 
 void* line_left(void* value)
