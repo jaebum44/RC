@@ -1,3 +1,8 @@
+
+| 작성자 |
+| :---: |
+| junghwk |
+
 # traffic signs detection using fhog_object_detector
 
 ## Build
@@ -65,7 +70,3 @@ g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPO
 Note :  This format is crucial. `yourownfile_ex.cpp -o yourownfile_ex` 
 
 Note : There's another way to compile using `make` in dir/build. In this case you have to make your own customized CMakeLists.txt 
-
-| 작성자 |
-| :---: |
-| junghwk |
