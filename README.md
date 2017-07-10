@@ -1,5 +1,5 @@
 
-| README.md 작성자 | git 관리자 |
+| RC/README.md 작성자 | git 관리자 |
 | :---: | :---: |
 | junghwk | yeogue |
 
