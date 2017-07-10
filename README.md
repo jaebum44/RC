@@ -66,4 +66,6 @@ Note :  This format is crucial. `yourownfile_ex.cpp -o yourownfile_ex`
 
 Note : There's another way to compile using `make` in dir/build. In this case you have to make your own customized CMakeLists.txt 
 
-
+| 작성자 |
+| :---: |
+| junghwk |
