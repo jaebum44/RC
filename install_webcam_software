@@ -12,4 +12,4 @@ sudo usermod -a -G video pi
 
 sudo modprobe uvcvideo
 
-<https://thinkrpi.wordpress.com/2013/04/05/step-3-install-softwares-for-webcam-and-computer-vision/>
+source: https://thinkrpi.wordpress.com/2013/04/05/step-3-install-softwares-for-webcam-and-computer-vision/
