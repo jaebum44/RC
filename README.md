@@ -1,26 +1,8 @@
 # RC project
 
-| junghwk |
-| :---: |
-| OpenCV |
-| dlib |
-| OpenCV sign detector |
+| junghwk || yeogue || jaebum44 || dongeun7 |
+| :---: || :---: || :---: || :---: |
+| OpenCV || OpenCV || OpenCV || OpenCV |
+| dlib || tesseract || git management || OpenCV sign detector || dlib |
+| OpenCV sign detector || kernel device driver || RC car motor control |
 | RC car motor control |
-
-| yeogue |
-| :---: |
-| OpenCV |
-| tesseract | 
-| git management |
-
-| jaebum44 |
-| :---: |
-| OpenCV |
-| OpenCV sign detector |
-| kernel device driver |
-
-| dongeun7 |
-| :---: |
-| OpenCV |
-| RC car motor control |
-| dlib |
