@@ -12,4 +12,6 @@ tesseract inlcude 오류 해결
 
 # tesseract 컴파일 예시
 
+<pre><code>
 g++ test.cpp -o test -std=c++11 -llept -ltesseract
+</code></pre>
