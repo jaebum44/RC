@@ -2,7 +2,9 @@
 
 <https://www.tensorflow.org/install/install_linux>
 
-> pip3 install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.2.0-cp35-cp35m-linux_x86_64.whl
+<pre><code>
+pip3 install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.2.0-cp35-cp35m-linux_x86_64.whl
+</code></pre>
 
 # setup docker
 
@@ -14,16 +16,15 @@
 
 # must input code
 
-> #!/usr/bin/env python
+<pre><code>
+#!/usr/bin/env python
 
-> import os
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2' 
+# https://github.com/tensorflow/tensorflow/issues/7778
 
-> os.environ['TF_CPP_MIN_LOG_LEVEL']='2' 
-
-> # https://github.com/tensorflow/tensorflow/issues/7778
-
-> import tensorflow as tf
-
+import tensorflow as tf
+</code></pre>
 # compile
 
 > python3.5 -m py_compile [PYTHON FILE]
