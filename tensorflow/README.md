@@ -15,9 +15,13 @@
 # must input code
 
 > #!/usr/bin/env python
+
 > import os
+
 > os.environ['TF_CPP_MIN_LOG_LEVEL']='2' 
+
 > # https://github.com/tensorflow/tensorflow/issues/7778
+
 > import tensorflow as tf
 
 # compile
