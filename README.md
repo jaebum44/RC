@@ -6,6 +6,7 @@
 | dlib | tesseract | device driver | dlib |
 | motor control | git management | motor control | motor control |
 | device driver | | | |
+| TCP/IP network | | | |
 | schedule management | | | |
 
 # OpenCV
@@ -22,13 +23,17 @@ traffic light detection
 
 string detection
 
+# motor control
+
+PWM control · find appropriate value of motor
+
 # device driver
 
 sensor control
 
-# motor control
+# TCP/IP network
 
-PWM control · find appropriate value of motor
+wireless transfer
 
 # schedule management
 
