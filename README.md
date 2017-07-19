@@ -29,3 +29,13 @@ sensor control
 # motor control
 
 PWM control · find appropriate value of motor
+
+# schedule management
+
+project planning of team
+
+# git management
+
+code record
+
+record skill of team member
