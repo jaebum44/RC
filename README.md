@@ -4,5 +4,5 @@
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | tesseract | git management | OpenCV sign detector | dlib |
-| OpenCV sign detector | kernel device driver | RC car motor control |
+| OpenCV sign detector | kernel device driver | | RC car motor control |
 | RC car motor control |
