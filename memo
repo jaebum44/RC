@@ -5,5 +5,3 @@ git pull
 # ...
 git commit -m "<message>"
 git push
-
-subin is stupid
