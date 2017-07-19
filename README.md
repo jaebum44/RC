@@ -1,6 +1,6 @@
 # RC project
 
-| junghwk | yeogue | jaebum44 | dongeun7 |
+| junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | tesseract | device driver | dlib |
