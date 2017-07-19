@@ -4,7 +4,7 @@
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | tesseract | device driver | dlib |
-| motor control | git management |  | motor control |
+| motor control | git management | motor control | motor control |
 | device driver | | | |
 | schedule management | | | |
 
@@ -28,5 +28,4 @@ sensor control
 
 # motor control
 
-PWM control · find appropriate value
-
+PWM control · find appropriate value of motor
