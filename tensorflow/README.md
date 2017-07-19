@@ -27,4 +27,6 @@ import tensorflow as tf
 </code></pre>
 # compile
 
-> python3.5 -m py_compile [PYTHON FILE]
+<pre><code>
+python3.5 -m py_compile [PYTHON FILE]
+</code></pre>
