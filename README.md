@@ -8,6 +8,7 @@
 | device driver | | | |
 | TCP/IP network | | | |
 | schedule management | | | |
+| git management | | | |
 
 # OpenCV
 
