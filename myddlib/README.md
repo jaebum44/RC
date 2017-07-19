@@ -1,8 +1,3 @@
-
-| RC/README.md 작성자 | git 관리자 |
-| :---: | :---: |
-| junghwk | yeogue |
-
 # traffic signs detection using fhog_object_detector
 
 ## Build
