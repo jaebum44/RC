@@ -40,6 +40,8 @@ wireless transfer
 
 project planning of team
 
+write journal
+
 <https://drive.google.com/open?id=181hj2BIQw41JlRvIvNAiyvcg5SGY2thXSMtJz_hX9zQ>
 
 # git management
@@ -47,3 +49,5 @@ project planning of team
 code record
 
 record skill of team member
+
+write README.md
