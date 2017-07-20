@@ -3,12 +3,13 @@
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
-| dlib | tesseract | device driver | dlib |
-| motor control | git management | motor control | motor control |
-| device driver | | | |
+| dlib | dlib | device driver | dlib |
+| motor control | tesseract | motor control | motor control |
+| device driver | git management | make RC car | make RC car |
 | TCP/IP network | | | |
 | schedule management | | | |
 | git management | | | |
+| make RC car | | | |
 
 # OpenCV
 
@@ -51,3 +52,7 @@ code record
 record skill of team member
 
 write README.md
+
+# make RC car
+
+assembly RC car
