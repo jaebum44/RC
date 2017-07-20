@@ -12,9 +12,9 @@
 
 ## tesseract 컴파일 예시
 
-<pre><code>
+```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract
-</code></pre>
+```
 
 ## Mat to Pix, OpenCV와 tesseract 함께 사용
 
@@ -22,6 +22,6 @@ g++ test.cpp -o test -std=c++11 -llept -ltesseract
 
 ## tesseract && OpenCV 컴파일 예시
 
-<pre><code>
+```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract `pkg-config --cflags --libs opencv`
-</code></pre>
+```
