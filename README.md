@@ -15,7 +15,7 @@
 
 line detection
 
-<https://github.com/opencv/opencv?
+<https://github.com/opencv/opencv>
 
 # dlib
 
