@@ -82,10 +82,19 @@ int main(int argc, char** argv)
     int i=0;
     image_window win;
 
+    tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
+    // Initialize tesseract-ocr(second argument is option -l), without specifying tessdata path.
+    if (api->Init(NULL, "eng")) {
+        fprintf(stderr, "Could not initialize tesseract.\n");
+        exit(1);
+    }
+
     while(1)
     {
 	    cv::Mat img;
+            cv::Mat _mat;
 	    img = cv::Mat::zeros(480 , 640, CV_8UC3);    
+    	    cv::cvtColor(img, _mat, CV_BGR2RGBA); 
 	    int imgSize = img.total() * img.elemSize();
 	    uchar *iptr = img.data;
 	    int bytes = 0;
@@ -95,7 +104,6 @@ int main(int argc, char** argv)
 	    if ( ! img.isContinuous() ) { 
 		  img = img.clone();
 	    }
-		
 	    
 	    while (key != 'q') {
 
@@ -124,15 +132,22 @@ int main(int argc, char** argv)
             win.set_image(cimg);
             win.add_overlay(dets, rgb_pixel(255,0,0));
 
+            api->SetImage(_mat.data, _mat.cols, _mat.rows, 4, 4*_mat.cols); // (image);
+            // Get OCR result
+            outText = api->GetUTF8Text();
+            printf("OCR output:\n%s", outText);
+
 	    //cv::Mat simg=toMat(cimg);
             	  
 	    //cv::imshow("result",simg);
 	    //cin.get();
 	    //cv::waitKey(0);
 
-	    
     }
     close(sokt);
+
+    api->End();
+    delete [] outText;
 
     return 0;
 }
