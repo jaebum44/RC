@@ -10,7 +10,7 @@
 
 <https://groups.google.com/d/msg/tesseract-ocr/r6bL_KLlcyE/B3eMnSvmEwAJ>
 
-## tesseract 컴파일 예시
+## tesseract 컴파일 예시[^1]
 
 ```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract
@@ -25,3 +25,5 @@ g++ test.cpp -o test -std=c++11 -llept -ltesseract
 ```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract `pkg-config --cflags --libs opencv`
 ```
+
+[^1]: -llept 없이도 컴파일 됨. -llept 역할 파악할 것.
