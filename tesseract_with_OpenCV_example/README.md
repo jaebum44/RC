@@ -10,22 +10,20 @@
 
 <https://groups.google.com/d/msg/tesseract-ocr/r6bL_KLlcyE/B3eMnSvmEwAJ>
 
-## tesseract 컴파일 예시[^1]
+## tesseract 컴파일 예시
 
 ```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract
 ```
 
+-llept 없이도 컴파일 됨. -llept 역할 파악할 것.
+
 ## Mat to Pix, OpenCV와 tesseract 함께 사용
 
 <https://stackoverflow.com/questions/27000797/converting-mat-to-pix-to-setimage>
 
-## tesseract && OpenCV 컴파일 예시
+## tesseract + OpenCV 컴파일 예시
 
 ```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract `pkg-config --cflags --libs opencv`
 ```
-
----
-
-[^1]: -llept 없이도 컴파일 됨. -llept 역할 파악할 것.
