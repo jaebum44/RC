@@ -20,6 +20,8 @@
 
 <http://dlib.net/compile.html>
 
+
+
 ### tesseract 컴파일 예시
 
 ```
