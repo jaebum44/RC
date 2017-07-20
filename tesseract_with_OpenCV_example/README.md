@@ -35,7 +35,7 @@ http://dlib.net/compile.html>
 ## tesseract + OpenCV + dlib 컴파일 예시
 
 ```
-g++ std=c++11 -O3 -I.. ../dlib-19.4/dlib/all/source.cpp -lpthread -lX11 -ltesseract client_test.cpp -o client_test `pkg-config --cflags --libs opencv`
+g++ -std=c++11 -O3 -I.. ../dlib-19.4/dlib/all/source.cpp -lpthread -lX11 -ltesseract client_test.cpp -o client_test `pkg-config --cflags --libs opencv`
 ```
 
 ## dlib 컴파일 옵션
