@@ -1,5 +1,9 @@
 # traffic signs detection using fhog_object_detector
 
+## install
+
+<https://www.learnopencv.com/install-dlib-on-ubuntu/>
+
 ## Build
 
 ```
