@@ -15,15 +15,21 @@
 
 line detection
 
+<https://github.com/opencv/opencv?
+
 # dlib
 
 sign detection
 
 traffic light detection
 
+<https://github.com/davisking/dlib>
+
 # tesseract
 
 string detection
+
+<https://github.com/tesseract-ocr/tesseract>
 
 # motor control
 
@@ -36,6 +42,8 @@ sensor control
 # TCP/IP network
 
 wireless transfer
+
+<http://momoci99.blogspot.kr/2016/08/3-ap.html>
 
 # schedule management
 
