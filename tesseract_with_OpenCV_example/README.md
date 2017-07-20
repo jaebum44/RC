@@ -26,4 +26,6 @@ g++ test.cpp -o test -std=c++11 -llept -ltesseract
 g++ test.cpp -o test -std=c++11 -llept -ltesseract `pkg-config --cflags --libs opencv`
 ```
 
+---
+
 [^1]: -llept 없이도 컴파일 됨. -llept 역할 파악할 것.
