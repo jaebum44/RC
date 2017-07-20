@@ -10,8 +10,6 @@
 
 <https://groups.google.com/d/msg/tesseract-ocr/r6bL_KLlcyE/B3eMnSvmEwAJ>
 
--llept 없이도 컴파일 됨. -llept 역할 파악할 것.
-
 ## Mat to Pix, OpenCV와 tesseract 함께 사용
 
 <https://stackoverflow.com/questions/27000797/converting-mat-to-pix-to-setimage>
@@ -27,6 +25,8 @@
 ```
 g++ test.cpp -o test -std=c++11 -llept -ltesseract
 ```
+
+-llept 없이도 컴파일 됨. -llept 역할 파악할 것.
 
 ### tesseract + OpenCV 컴파일 예시
 
