@@ -28,10 +28,6 @@ g++ test.cpp -o test -std=c++11 -llept -ltesseract
 g++ test.cpp -o test -std=c++11 -llept -ltesseract `pkg-config --cflags --libs opencv`
 ```
 
-## dlib 컴파일 옵션
-
-<http://dlib.net/compile.html>
-
 ## tesseract + OpenCV + dlib 컴파일 예시
 
 ```
