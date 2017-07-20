@@ -18,6 +18,10 @@
 
 <http://dlib.net/compile.html>
 
+## Makefile 기초
+
+<http://bowbowbow.tistory.com/12>
+
 ---
 
 ### tesseract 컴파일 예시
