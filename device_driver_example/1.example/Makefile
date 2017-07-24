@@ -1,6 +1,7 @@
 obj-m := example.o
 
 KDIR := /usr/src/linux-headers-4.8.0-58-generic/
+# KDIR := /lib/modules/$(shell uname -r)/build
 
 PWD := $(shell pwd)
 
@@ -13,3 +14,4 @@ clean:
 	rm -f .*.cmd
 	rm -f *.order
 	rm -f *.symvers
+	rm -rf .tmp_versions
