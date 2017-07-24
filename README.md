@@ -11,13 +11,13 @@
 | git management | | | |
 | make RC car | | | |
 
-# OpenCV
+## OpenCV
 
 line detection
 
 <https://github.com/opencv/opencv>
 
-# dlib
+## dlib
 
 sign detection
 
@@ -25,27 +25,27 @@ traffic light detection
 
 <https://github.com/davisking/dlib>
 
-# tesseract
+## tesseract
 
 string detection
 
 <https://github.com/tesseract-ocr/tesseract>
 
-# motor control
+## motor control
 
 PWM control · find appropriate value of motor
 
-# device driver
+## device driver
 
 sensor control
 
-# TCP/IP network
+## TCP/IP network
 
 wireless transfer
 
 <http://momoci99.blogspot.kr/2016/08/3-ap.html>
 
-# schedule management
+## schedule management
 
 project planning of team
 
@@ -53,7 +53,7 @@ write journal
 
 <https://drive.google.com/open?id=181hj2BIQw41JlRvIvNAiyvcg5SGY2thXSMtJz_hX9zQ>
 
-# git management
+## git management
 
 code record
 
@@ -61,6 +61,6 @@ record skill of team member
 
 write README.md
 
-# make RC car
+## make RC car
 
 assembly RC car
