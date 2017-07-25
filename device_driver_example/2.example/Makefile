@@ -1,4 +1,4 @@
-obj-m := example.o
+obj-m := sample.o print_int.o
 
 KDIR := /usr/src/linux
 # KDIR := /lib/modules/$(shell uname -r)/build
@@ -10,8 +10,8 @@ default:
 clean:
 	rm -f *.ko
 	rm -f *.o
-	rm -f *.mod.*
-	rm -f .*.cmd
+	rm -f *.mod*
+	rm -f *.cmd
 	rm -f *.order
 	rm -f *.symvers
-	rm -rf .tmp_versions
+	rm -rf .*
