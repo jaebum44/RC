@@ -10,7 +10,7 @@ cd /usr/src/linux/
 vi driver/gpio/Makefile
 ```
 
-추가
+라인 추가
 
 ```
 obj-m		+= gpio-morse.o
