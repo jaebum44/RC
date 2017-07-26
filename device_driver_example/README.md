@@ -1,5 +1,9 @@
 # kernel device driver example
 
+## build raspberry kernel
+
+<https://www.raspberrypi.org/documentation/linux/kernel/building.md>
+
 ## check kernel version
 
 ```
