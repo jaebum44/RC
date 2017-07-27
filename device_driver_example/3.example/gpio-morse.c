@@ -1,11 +1,10 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/kernel.h>
+#include <linux/fs.h>
 
 #define DEV_MORSE_MAJOR_NUMBER	230
 #define DEV_MORSE_NAME		"gpio-morse"
-#define GPIO			[DEV_MORSE_NAME]
 
 static int morse_open( struct inode* inode, struct file* filp )
 {
