@@ -58,6 +58,18 @@ static int set_pin_16( void )
 	return 0;
 }
 
+static int clr_pin_16( void )
+{
+	volatile unsigned int*	gpio	= get_gpio_addr();
+	const unsigned int	sel	= 0x1C;
+	const unsigned int	shift	= 16;
+
+	set_bits( gpio + sel / sizeof( unsigned int ), shift, S_HIGH, 0x1 );
+	set_bits( gpio + sel / sizeof( unsigned int ), shift, S_LOW, 0x1 );
+
+	return 0;
+}
+
 static int ok01_open( struct inode* inode, struct file* filp )
 {
 	if( func_pin_16( M_OUTPUT ) != 0 )
