@@ -53,10 +53,6 @@ static int gpio_open( struct inode* inod, struct file* fil )
 
 static int gpio_close( struct inode* inod, struct file* fil )
 {
-#if 0
-	printk( "GPIO Device closed( %d )\n", MAJOR( fil->f_dentry->d_inode->i_rdev ) );
-#endif
-	
 	return 0;
 }
 
@@ -67,11 +63,6 @@ static ssize_t gpio_read( struct file* inode, char* buff, size_t len, loff_t* of
 	strcat( msg, "from Kernel" );
 
 	count = copy_to_user( buff, msg, strlen( msg ) + 1 );
-
-#if 0
-	printk( "GPIO Device( %d ) read : %s( %d )\n",
-		MAJOR( inode->f_dentry->d_inode->i_rdev ), msg, len );
-#endif
 
 	return count;
 }
@@ -85,11 +76,6 @@ static ssize_t gpio_write( struct file* inode, const char* buff, size_t len, lof
 	count = copy_from_user( msg, buff, len );
 
 	( !strcmp( msg, "0" ) ) ? GPIO_CLR( GPIO_LED ) : GPIO_SET( GPIO_LED );
-
-#if 0
-	printk( "GPIO Device( %d ) read : %s( %d )\n",
-		MAJOR( inode->f_dentry->d_inode->i_rdev ), msg, len );
-#endif
 
 	return count;
 }
