@@ -8,4 +8,4 @@ connect pin number 19, 21
 
 ## spi enable
 
-<https://www.youtube.com/watch?j8OjOnH5Sr4>
+<https://www.youtube.com/watch?v=j8OjOnH5Sr4>
