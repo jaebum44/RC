@@ -90,6 +90,7 @@ void* recv_pack( void* arg )
 			}
 		}
 	}
+	sleep(1000);
 }
 
 int cmp_f(const void*p, const void*k)

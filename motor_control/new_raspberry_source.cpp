@@ -277,7 +277,7 @@ void*netlink_shared_mem_thread(void*arg)
 
 
 	/* make the key: */
-	if ((key = ftok("test_mydrv_shm.c", 'R')) == -1) {
+	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
 	perror("ftok");
 	exit(1);
 	}
