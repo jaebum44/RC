@@ -1,0 +1,1 @@
+cmd_/home/pi/kernel_driver/sensor.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/kernel_driver/sensor.ko /home/pi/kernel_driver/sensor.o /home/pi/kernel_driver/sensor.mod.o ;  true
