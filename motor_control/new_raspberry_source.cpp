@@ -246,7 +246,7 @@ void*netlink_thread(void*arg)
 		usleep(200000);
 		i++;
 		
-		if(*dist < 12)
+		if(*dist < 20)
 			car_ctl_T.ultra_sonic_value = 0;
 		else
 			car_ctl_T.ultra_sonic_value = 1;
