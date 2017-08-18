@@ -97,6 +97,7 @@ void calc_vals( void )
 		// send stop
 		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
 		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
+		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
 	}
 	else if( traffic_sign )
 	{
@@ -104,6 +105,7 @@ void calc_vals( void )
 		// send slow
 		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
 		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
+		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
 	}
 	else
 	{
@@ -111,7 +113,9 @@ void calc_vals( void )
 		// send fast
 		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
 		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
+		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
 	}
+	sleep(1);
 }
 
 void* send_pack( void* arg )
@@ -126,6 +130,26 @@ int main( int argc, char** argv )
 {
 	int		fork_pid, status;
 	pthread_t	main_thrd;
+
+	key_t key;
+	int shmid;
+	int *shdata;
+	void *data_shm;
+
+	/* connect to (and possibly create) the segment: */
+	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
+	perror("shmget");
+	exit(1);
+	}
+
+	/* attach to the segment to get a pointer to it: */
+	data_shm = shmat(shmid, (void *)0, 0);
+	if (data_shm == (void *)(-1)) {
+	perror("shmat");
+	exit(1);
+	}
+	printf("traffic_sign = %d\n", traffic_sign);
+	shdata = (int*)data_shm;
 
 	pthread_create( &main_thrd, NULL, &send_pack, NULL );
 
@@ -174,6 +198,7 @@ int netlink_F()
 	
 	pthread_join(netlink_pid[0], (void**)&status);// 쓰레드가 끝날 때까지 기다린다면 while문을 돌리는 동안 main문 thread_join에서 걸리게 된다.
 	pthread_join(netlink_pid[1], (void**)&status);//2번째가 NULL 이 아니라면, th의 리턴값이 저장된 영역이 전달되게 된다.
+
 	return 0;
 }
 
@@ -189,7 +214,7 @@ void*netlink_thread(void*arg)
 	key_t key = 0;
 	int shmid;
 	void*data_shm;
-	shard_data *shdata;
+	int *shdata;
 
 	fd = *(int*)arg;
 
@@ -265,7 +290,7 @@ void*netlink_shared_mem_thread(void*arg)
 
 	int mode;
 	int save_distance=0;
-	shard_data *shdata;
+	int *shdata;
 	void *data_shm;
 
 
@@ -287,10 +312,11 @@ void*netlink_shared_mem_thread(void*arg)
 	perror("shmat");
 	exit(1);
 	}
-	shdata = (shard_data *)data_shm;
+	shdata = (int*)data_shm;
 	while(1)
 	{
-		printf("RaspberryPi buffer =%d\n",shdata->ultra_sonic_value);
+		printf("RaspberryPi buffer =%d\n",*shdata);
+		traffic_sign = *shdata;
 		usleep(500000);
 	}
 	/* detach from the segment: */
@@ -331,8 +357,6 @@ int print_F(int argc, char **argv)
 
 	struct sockaddr_in client_addr, server_addr;
 
-	
-
 	if(argc < 2)
 	{
 		perror("Usage: Server port_num \n");
@@ -344,6 +368,7 @@ int print_F(int argc, char **argv)
 		perror("Server: Can't open socket\n");
 		return -1;
 	}
+
 
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET; // protocol address type, if IPv4 == AF_INET
@@ -383,6 +408,7 @@ int print_F(int argc, char **argv)
 
 	pthread_join(print_pid[0], (void**)&status);
 	pthread_join(print_pid[1], (void**)&status);
+
 
 	//close(listenSock);
 	//close(connSock);
@@ -426,10 +452,12 @@ void*display(void*arg)
 			perror("traffic_sign receive fail");
 		}
 
-		if(!traffic_sign)
+		if(traffic_sign)
 			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
 		else
 			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
+		printf("traffic sign = %d\n", traffic_sign);
+		sleep(1);
 		
 	}
 
@@ -443,10 +471,10 @@ void*print_shared_mem_thread(void*arg)
 	key_t key;
 	int shmid;
 	int mode;
-	shard_data *shdata;
+	int *shdata;
 	void *data_shm;
 	/* make the key: */
-	if ((key = ftok("test_mydrv_shm.c", 'R')) == -1) {
+	if ((key = 1234) == -1) {
 	perror("ftok");
 	exit(1);
 	}
@@ -463,16 +491,18 @@ void*print_shared_mem_thread(void*arg)
 	perror("shmat");
 	exit(1);
 	}
-	shdata = (shard_data *)data_shm;
+	printf("traffic_sign = %d\n", traffic_sign);
+	shdata = (int*)data_shm;
 
 	while(1) 
 	{
-		shdata->traffic_sign_value = traffic_sign;
+		*shdata = traffic_sign;
 	
-		if(!traffic_sign)
+		if(traffic_sign)
 			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
 		else
 			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
+		sleep(1);
 		
 	}
 
