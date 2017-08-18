@@ -73,8 +73,7 @@ int*dist;
 shard_data car_ctl_T;
 
 int packet[ ][ COMM_PACK ] = \
-	{ 1, 1, 1,	// flag 
-	  0, 0, 0,	// stop
+	{ 0, 0, 0,	// stop
 	  0, 0, 1,	// slow
 	  0, 1, 0 };	// fast
 
@@ -92,7 +91,7 @@ void calc_vals( void )
 
 	if( !car_ctl_T.ultra_sonic_value )
 	{
-		pack_idx = 1;
+		pack_idx = 0;
 		// send stop
 		for( a = 0; a < COMM_PACK; a++ )
 		{
@@ -101,7 +100,7 @@ void calc_vals( void )
 	}
 	else if( traffic_sign )
 	{
-		pack_idx = 2;
+		pack_idx = 1;
 		// send slow
 		for( a = 0; a < COMM_PACK; a++ )
 		{
@@ -110,7 +109,7 @@ void calc_vals( void )
 	}
 	else
 	{
-		pack_idx = 3;
+		pack_idx = 2;
 		// send fast
 		for( a = 0; a < COMM_PACK; a++ )
 		{
@@ -123,19 +122,7 @@ void* send_pack( void* arg )
 {
 	while( 1 )
 	{
-		if( packet[ pack_idx ][ 0 ] )
-		{
-			calc_vals();
-		}
-		else
-		{
-			pack_idx = 0;
-			// send flag
-			for( int a = 0; a < COMM_PACK; a++ )
-			{
-				digitalWrite( SEND_PACK, packet[ pack_idx ][ a ] );
-			}
-		}
+		calc_vals();
 	}
 } 
 
