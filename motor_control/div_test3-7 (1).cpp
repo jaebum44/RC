@@ -39,7 +39,8 @@ using namespace std;
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
 #define COMM_PACK 3
-#define RECV_PACK 7
+#define RECV_PACK1 24 
+#define RECV_PACK2 25 
 
 typedef int(*FCMP)(const void*, const void*);
 
@@ -66,28 +67,23 @@ void* recv_pack( void* arg )
 
 	while( 1 )
 	{
-		read_pack = digitalRead( RECV_PACK );
-
-		if( !read_pack )
+		command[0] = digitalRead( RECV_PACK1 ); 
+		command[1] = digitalRead( RECV_PACK2 ); 
+		
+		if( command[0] )
 		{
-			command[0] = digitalRead( RECV_PACK ); 
-			command[1] = digitalRead( RECV_PACK ); 
-			
-			if( command[0] )
-			{
-				// fast
-				printf("fast\n");
-			}
-			else if( command[1] )
-			{
-				// slow
-				printf("slow\n");
-			}
-			else
-			{
-				// stop
-				printf("stop\n");
-			}
+			// fast
+			printf("fast\n");
+		}
+		else if( command[1] )
+		{
+			// slow
+			printf("slow\n");
+		}
+		else
+		{
+			// stop
+			printf("stop\n");
 		}
 	}
 	sleep(1000);
@@ -124,7 +120,8 @@ int main()
 {
 	wiringPiSetup();
 
-	pinMode( RECV_PACK, INPUT );
+	pinMode( RECV_PACK1, INPUT );
+	pinMode( RECV_PACK2, INPUT );
 
 	int fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
 	if (fd < 0)
