@@ -68,6 +68,8 @@ pthread_t print_pid[2];
 int traffic_sign;
 int pack_idx = 0;
 
+int*dist;
+
 shard_data car_ctl_T;
 
 int packet[ ][ COMM_PACK ] = \
@@ -196,9 +198,10 @@ int netlink_F()
 
 void*netlink_thread(void*arg)
 {
+	int i=0;
 	ioctl_buf *buf_in,*buf_out;	
 	int fd, size, len;
-	float distance;
+	int distance;
 
 	key_t key = 0;
 	int shmid;
@@ -207,10 +210,11 @@ void*netlink_thread(void*arg)
 
 	fd = *(int*)arg;
 
+	dist=(int*)malloc(sizeof(int));
 	size = sizeof(ioctl_buf);
 	buf_out = (ioctl_buf*)malloc(size);
-	strcpy(buf_out->data, "");
-	
+	strcpy(buf_out->data,"0");
+
 	while(1)
 	{	
 		sock_fd=socket(PF_NETLINK, SOCK_RAW, NETLINK_USER);
@@ -228,37 +232,43 @@ void*netlink_thread(void*arg)
 		dest_addr.nl_family = AF_NETLINK;
 		dest_addr.nl_pid = 0;   // For Linux Kernel 
 		dest_addr.nl_groups = 0; // unicast 
-
+		
 		nlh = (struct nlmsghdr *)malloc(NLMSG_SPACE(MAX_PAYLOAD)); //메모리 할당
 		memset(nlh, 0, NLMSG_SPACE(MAX_PAYLOAD));// 초기화	//MLMSG_SPACE =저장 영역의 길이가 len 의 netlink 메시지의 바이트 수를 돌려 준다.
 		nlh->nlmsg_len = NLMSG_SPACE(MAX_PAYLOAD); //MLMSG_SPACE =저장 영역의 길이가 len 의 netlink 메시지의 바이트 수를 돌려 준다.
 		nlh->nlmsg_pid = getpid();		//전송 포트 아이디 메시지가 커널에 전송되면 nlmsg_pid는 0이다.
 		nlh->nlmsg_flags = 0;			
 		
-// 어디에 쓰이는지 의문인 명령	
-//		iov.iov_base = (void *)nlh;
-//		iov.iov_len = nlh->nlmsg_len;
-//		msg.msg_name = (void *)&dest_addr;
-//		msg.msg_namelen = sizeof(dest_addr);
-//		msg.msg_iov = &iov;
-//		msg.msg_iovlen = 1;
+		memcpy(NLMSG_DATA(nlh),dist,sizeof(int));
+		
+		iov.iov_base = (void *)nlh;
+		iov.iov_len = nlh->nlmsg_len;
+		msg.msg_name = (void *)&dest_addr;
+		msg.msg_namelen = sizeof(dest_addr);
+		msg.msg_iov = &iov;
+		msg.msg_iovlen = 1;
 		
 		ioctl(fd, IOCTL_MYDRV_WRITE, buf_out);// 구조체를 보내는 방식
 		
+		sendmsg(sock_fd,&msg,0);
 		// Read message from kernel 
-		recvmsg(sock_fd, &msg, MSG_WAITALL);
-		distance = *(float*)NLMSG_DATA(nlh);
 
-
-		if(distance < 12)
+		recvmsg(sock_fd, &msg, 0);
+	    dist=((int*)NLMSG_DATA(nlh));
+	    printf("Received message payload : %d cm %d\n",*dist,i);
+		usleep(200000);
+		i++;
+		
+		if(*dist < 12)
 			car_ctl_T.ultra_sonic_value = 0;
 		else
 			car_ctl_T.ultra_sonic_value = 1;
 
-		usleep(200000);
-
 		close(sock_fd);	//소켓을 연결하고 다시 닫아야 한다 while문에서  커널과 앱간의 연결하는 디스크립터 
 	}
+
+	free(dist);
+     
 } 
 
 

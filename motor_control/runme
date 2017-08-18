@@ -1,0 +1,3 @@
+sudo insmod sensor.ko
+sudo mknod /dev/sensor c 220 0
+sudo chmod 777 /dev/sensor

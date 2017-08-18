@@ -1,8 +1,8 @@
-cmd_/home/pi/github/RC/motor_control/sensor.mod.o := gcc -Wp,-MD,/home/pi/github/RC/motor_control/.sensor.mod.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/4.9/include -I./arch/arm/include -I./arch/arm/include/generated/uapi -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -fno-ipa-sra -mabi=aapcs-linux -mno-thumb-interwork -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -O2 --param=allow-store-data-races=0 -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -pg -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -DCC_HAVE_ASM_GOTO  -DKBUILD_BASENAME='"sensor.mod"'  -DKBUILD_MODNAME='"sensor"' -DMODULE  -c -o /home/pi/github/RC/motor_control/sensor.mod.o /home/pi/github/RC/motor_control/sensor.mod.c
+cmd_/home/pi/RC/motor_control/sensor.mod.o := gcc -Wp,-MD,/home/pi/RC/motor_control/.sensor.mod.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/4.9/include -I./arch/arm/include -I./arch/arm/include/generated/uapi -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -fno-ipa-sra -mabi=aapcs-linux -mno-thumb-interwork -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -O2 --param=allow-store-data-races=0 -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -pg -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -DCC_HAVE_ASM_GOTO  -DKBUILD_BASENAME='"sensor.mod"'  -DKBUILD_MODNAME='"sensor"' -DMODULE  -c -o /home/pi/RC/motor_control/sensor.mod.o /home/pi/RC/motor_control/sensor.mod.c
 
-source_/home/pi/github/RC/motor_control/sensor.mod.o := /home/pi/github/RC/motor_control/sensor.mod.c
+source_/home/pi/RC/motor_control/sensor.mod.o := /home/pi/RC/motor_control/sensor.mod.c
 
-deps_/home/pi/github/RC/motor_control/sensor.mod.o := \
+deps_/home/pi/RC/motor_control/sensor.mod.o := \
     $(wildcard include/config/module/unload.h) \
   include/linux/module.h \
     $(wildcard include/config/modules.h) \
@@ -448,6 +448,6 @@ deps_/home/pi/github/RC/motor_control/sensor.mod.o := \
   include/linux/vermagic.h \
   include/generated/utsrelease.h \
 
-/home/pi/github/RC/motor_control/sensor.mod.o: $(deps_/home/pi/github/RC/motor_control/sensor.mod.o)
+/home/pi/RC/motor_control/sensor.mod.o: $(deps_/home/pi/RC/motor_control/sensor.mod.o)
 
-$(deps_/home/pi/github/RC/motor_control/sensor.mod.o):
+$(deps_/home/pi/RC/motor_control/sensor.mod.o):

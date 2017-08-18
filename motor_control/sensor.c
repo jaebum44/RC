@@ -47,13 +47,14 @@ void itoa(int num, char *str);
 static void hello_nl_recv_msg(struct sk_buff *skb);
 struct sock *nl_sk = NULL;
 
+int *dist;
+int dist1;
 
 static irqreturn_t isr_func(int irq, void *data)
 {
     do_gettimeofday( &after);
-	distance =(after.tv_usec - before.tv_usec) / 58;
-	itoa(distance ,chardistance);
-    printk("%scm\n", chardistance);
+	dist1 =(after.tv_usec - before.tv_usec) / 58;
+	printk("%d cm\n", dist1);
  
         return IRQ_HANDLED;
 }
@@ -67,12 +68,14 @@ static irqreturn_t isr_func(int irq, void *data)
 
 static ssize_t mydrv_open(struct inode *inode, struct file *file)
 {
+ try_module_get(THIS_MODULE);
   printk("mydrv opened !!\n");
   return 0;
 }
 
 static ssize_t mydrv_release(struct inode *inode, struct file *file)
 {
+  module_put(THIS_MODULE);
   printk("mydrv released !!\n");
   return 0;
 }
@@ -182,46 +185,49 @@ static void mydrv_setup_cdev(struct cdev *dev, int minor,
 }
 
 
-
 static void hello_nl_recv_msg(struct sk_buff *skb)
 {
     struct nlmsghdr *nlh;
     int pid;
-	int res;
     struct sk_buff *skb_out;
     int msg_size;
-    char mesg10[20]={0};
-	strcpy(mesg10,chardistance);
-    
-
+    int res;
 
     printk(KERN_INFO "Entering: %s\n", __FUNCTION__);
-    msg_size=strlen(mesg10);
+    
+	msg_size=sizeof(int);
     
     nlh=(struct nlmsghdr*)skb->data;
-    printk(KERN_INFO "Netlink received msg payload: %s\n",(char*)nlmsg_data(nlh));
-    pid = nlh->nlmsg_pid; /*pid of sending process */
 
+	//dist=(int*)(nlmsg_data(nlh));
 
-    skb_out = nlmsg_new(msg_size,0);
+	dist=(int*)kmalloc(sizeof(int),GFP_KERNEL);
+
+    pid=nlh->nlmsg_pid; /*pid of sending process */
+
+    skb_out=nlmsg_new(msg_size,0);
 
 
     if(!skb_out)
-    {
+ 	{
         printk(KERN_ERR "Failed to allocate new skb\n");
         return;
-    } 
+ 	} 
+
     nlh=nlmsg_put(skb_out,0,0,NLMSG_DONE,msg_size,0);
 
-
     NETLINK_CB(skb_out).dst_group = 0; /* not in mcast group */
-    strncpy(nlmsg_data(nlh),mesg10,msg_size);
+    memcpy(nlmsg_data(nlh),&dist1,msg_size);
     
     res=nlmsg_unicast(nl_sk,skb_out,pid);
     
     if(res<0)
         printk(KERN_INFO "Error while sending bak to user\n");
+
+	kfree(dist);
 }
+
+
 
 
 
