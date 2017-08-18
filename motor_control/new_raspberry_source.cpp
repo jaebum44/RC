@@ -34,7 +34,8 @@
 #define PORT 9000
 
 #define COMM_PACK 3
-#define SEND_PACK 7
+#define SEND_PACK1 24
+#define SEND_PACK2 25
 
 using namespace std;
 using namespace cv;
@@ -73,9 +74,9 @@ int*dist;
 shard_data car_ctl_T;
 
 int packet[ ][ COMM_PACK ] = \
-	{ 0, 0, 0,	// stop
-	  0, 0, 1,	// slow
-	  0, 1, 0 };	// fast
+	{  0, 0,	// stop
+	   0, 1,	// slow
+	   1, 0 };	// fast
 
 void calc_vals( void )
 {
@@ -83,38 +84,33 @@ void calc_vals( void )
 
 	wiringPiSetup();
 
-	pinMode( SEND_PACK, OUTPUT );
+	pinMode( SEND_PACK1, OUTPUT );
+	pinMode( SEND_PACK2, OUTPUT );
 	
-	// sonic == 0;	stop
+	// sonic == 1;	stop
 	// sign == 1;	slow
 	// else;	fast
 
-	if( !car_ctl_T.ultra_sonic_value )
+	if( car_ctl_T.ultra_sonic_value )
 	{
 		pack_idx = 0;
 		// send stop
-		for( a = 0; a < COMM_PACK; a++ )
-		{
-			digitalWrite( SEND_PACK, packet[ pack_idx ][ a ] );
-		}
+		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
+		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
 	}
 	else if( traffic_sign )
 	{
 		pack_idx = 1;
 		// send slow
-		for( a = 0; a < COMM_PACK; a++ )
-		{
-			digitalWrite( SEND_PACK, packet[ pack_idx ][ a ] );
-		}
+		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
+		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
 	}
 	else
 	{
 		pack_idx = 2;
 		// send fast
-		for( a = 0; a < COMM_PACK; a++ )
-		{
-			digitalWrite( SEND_PACK, packet[ pack_idx ][ a ] );
-		}
+		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
+		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
 	}
 }
 
@@ -247,9 +243,9 @@ void*netlink_thread(void*arg)
 		i++;
 		
 		if(*dist < 20)
-			car_ctl_T.ultra_sonic_value = 0;
-		else
 			car_ctl_T.ultra_sonic_value = 1;
+		else
+			car_ctl_T.ultra_sonic_value = 0;
 
 		close(sock_fd);	//소켓을 연결하고 다시 닫아야 한다 while문에서  커널과 앱간의 연결하는 디스크립터 
 	}
