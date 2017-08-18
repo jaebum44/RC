@@ -72,8 +72,8 @@ void* recv_pack( void* arg )
 		
 		if( command[0] )
 		{
-			// fast
-			printf("fast\n");
+			// stop
+			printf("stop\n");
 		}
 		else if( command[1] )
 		{
@@ -82,8 +82,8 @@ void* recv_pack( void* arg )
 		}
 		else
 		{
-			// stop
-			printf("stop\n");
+			// fast
+			printf("fast\n");
 		}
 	}
 	sleep(1000);
