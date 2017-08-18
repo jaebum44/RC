@@ -80,10 +80,14 @@ void* recv_pack( void* arg )
 			// slow
 			printf("slow\n");
 		}
-		else
+		else if( !command[0] && !command[1] )
 		{
 			// fast
 			printf("fast\n");
+		}
+		else
+		{
+			printf("fail\n");
 		}
 	}
 	sleep(1000);
