@@ -38,7 +38,7 @@ using namespace std;
 #define in4 27
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
-#define COMM_PACK 3
+#define COMM_PACK 2
 #define RECV_PACK1 24 
 #define RECV_PACK2 25 
 
@@ -55,10 +55,9 @@ void*kill_process(void*arg);
 void* recv_pack( void* arg );
 
 //int packet[ ][ COMM_PACK ] = \
-//	{ 1, 1, 1,	// flag 
-//	  0, 0, 0,	// stop
-//	  0, 0, 1,	// slow
-//	  0, 1, 0 };	// fast
+// 	{ 0, 0,		// stop
+//	  0, 1,		// slow
+//	  1, 0 };	// fast
 
 void* recv_pack( void* arg )
 {
@@ -72,8 +71,8 @@ void* recv_pack( void* arg )
 		
 		if( command[0] )
 		{
-			// stop
-			printf("stop\n");
+			// fast
+			printf("fast\n");
 		}
 		else if( command[1] )
 		{
@@ -82,8 +81,8 @@ void* recv_pack( void* arg )
 		}
 		else if( !command[0] && !command[1] )
 		{
-			// fast
-			printf("fast\n");
+			// stop
+			printf("stop\n");
 		}
 		else
 		{

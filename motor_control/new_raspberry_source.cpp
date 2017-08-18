@@ -33,7 +33,7 @@
 #define PATH "/dev/sensor"
 #define PORT 9000
 
-#define COMM_PACK 3
+#define COMM_PACK 2
 #define SEND_PACK1 24
 #define SEND_PACK2 25
 
@@ -133,12 +133,12 @@ int main( int argc, char** argv )
 
 	if( fork_pid == 0 )
 	{
-		netlink_F();
+		print_F( argc, argv ); 
 		pause();
 	}
 	else if( fork_pid > 0 )
 	{
-		print_F( argc, argv );
+		netlink_F();
 		pause();
 	}
 	else
