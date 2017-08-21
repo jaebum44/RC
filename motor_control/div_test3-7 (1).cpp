@@ -54,25 +54,16 @@ void*wheel_a(void*arg);
 void*kill_process(void*arg);
 void* recv_pack( void* arg );
 
+int DC[ ][ 2 ] = \
+	{ 1250	, 1100,
+	  0	, 0	};
+
 void* recv_pack( void* arg )
 {
 	while( 1 )
 	{
-		if( digitalRead( RECV_PACK1 ) )
-		{
-			printf("stop\n");
-			dc_motor=0;
-		}
-		else if( digitalRead( RECV_PACK2 ) )
-		{
-			printf("slow\n");
-			dc_motor=1100;
-		}
-		else
-		{
-			printf("fast\n");
-			dc_motor=1250;
-		}
+		dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+		printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 	}
 	sleep(1000);
 }
