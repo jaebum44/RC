@@ -54,11 +54,6 @@ void*wheel_a(void*arg);
 void*kill_process(void*arg);
 void* recv_pack( void* arg );
 
-//int packet[ ][ COMM_PACK ] = \
-// 	{ 0, 0,		// stop
-//	  0, 1,		// slow
-//	  1, 0 };	// fast
-
 void* recv_pack( void* arg )
 {
 	int read_pack;
@@ -72,7 +67,7 @@ void* recv_pack( void* arg )
 		if( command[0] )
 		{
 			// fast
-			printf("fast\n");
+			printf("stop\n");
 		}
 		else if( command[1] )
 		{
@@ -82,7 +77,7 @@ void* recv_pack( void* arg )
 		else if( !command[0] && !command[1] )
 		{
 			// stop
-			printf("stop\n");
+			printf("fast\n");
 		}
 		else
 		{

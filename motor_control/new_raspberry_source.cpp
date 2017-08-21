@@ -74,9 +74,10 @@ int*dist;
 shard_data car_ctl_T;
 
 int packet[ ][ COMM_PACK ] = \
-	{  0, 0,	// stop
-	   0, 1,	// slow
-	   1, 0 };	// fast
+	{  0, 0, 0,	// fast
+	   0, 0, 1,	// slow
+	   0, 1, 0, 	// stop 
+	   1, 1, 1 };	// flag
 
 void calc_vals( void )
 {
@@ -91,30 +92,10 @@ void calc_vals( void )
 	// sign == 1;	slow
 	// else;	fast
 
-	if( car_ctl_T.ultra_sonic_value )
-	{
-		pack_idx = 0;
-		// send stop
-		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
-		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
-		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
-	}
-	else if( traffic_sign )
-	{
-		pack_idx = 1;
-		// send slow
-		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
-		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
-		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
-	}
-	else
-	{
-		pack_idx = 2;
-		// send fast
-		digitalWrite( SEND_PACK1, packet[ pack_idx ][ 0 ] );
-		digitalWrite( SEND_PACK2, packet[ pack_idx ][ 1 ] );
-		printf("%d %d\n", packet[ pack_idx ][ 0 ], packet[ pack_idx ][ 1 ]);
-	}
+	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value );
+	digitalWrite( SEND_PACK2, traffic_sign );
+	printf("%d %d\n", car_ctl_T.ultra_sonic_value, traffic_sign );
+
 	sleep(1);
 }
 
