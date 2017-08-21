@@ -56,32 +56,22 @@ void* recv_pack( void* arg );
 
 void* recv_pack( void* arg )
 {
-	int read_pack;
-	int command[2];
-
 	while( 1 )
 	{
-		command[0] = digitalRead( RECV_PACK1 ); 
-		command[1] = digitalRead( RECV_PACK2 ); 
-		
-		if( command[0] )
+		if( digitalRead( RECV_PACK1 ) )
 		{
 			// fast
 			printf("stop\n");
 		}
-		else if( command[1] )
+		else if( digitalRead( RECV_PACK2 ) )
 		{
 			// slow
 			printf("slow\n");
 		}
-		else if( !command[0] && !command[1] )
+		else
 		{
 			// stop
 			printf("fast\n");
-		}
-		else
-		{
-			printf("fail\n");
 		}
 	}
 	sleep(1000);

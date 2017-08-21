@@ -33,7 +33,6 @@
 #define PATH "/dev/sensor"
 #define PORT 9000
 
-#define COMM_PACK 2
 #define SEND_PACK1 24
 #define SEND_PACK2 25
 
@@ -73,11 +72,9 @@ int*dist;
 
 shard_data car_ctl_T;
 
-int packet[ ][ COMM_PACK ] = \
-	{  0, 0, 0,	// fast
-	   0, 0, 1,	// slow
-	   0, 1, 0, 	// stop 
-	   1, 1, 1 };	// flag
+int packet[ ] = \
+	{ 1250,		// fast
+	  1100 };	// slow 
 
 void calc_vals( void )
 {
@@ -93,10 +90,10 @@ void calc_vals( void )
 	// else;	fast
 
 	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value );
-	digitalWrite( SEND_PACK2, traffic_sign );
-	printf("%d %d\n", car_ctl_T.ultra_sonic_value, traffic_sign );
+	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value );
+	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value );
 
-	sleep(1);
+	//sleep(1);
 }
 
 void* send_pack( void* arg )
@@ -244,14 +241,17 @@ void*netlink_thread(void*arg)
 
 		recvmsg(sock_fd, &msg, 0);
 	    dist=((int*)NLMSG_DATA(nlh));
+	    *dist -= 10;
 	    printf("Received message payload : %d cm %d\n",*dist,i);
-		usleep(200000);
+		//usleep(200000);
 		i++;
 		
 		if(*dist < 20)
 			car_ctl_T.ultra_sonic_value = 1;
 		else
 			car_ctl_T.ultra_sonic_value = 0;
+
+		car_ctl_T.traffic_sign_value = traffic_sign;
 
 		close(sock_fd);	//소켓을 연결하고 다시 닫아야 한다 while문에서  커널과 앱간의 연결하는 디스크립터 
 	}
@@ -298,7 +298,7 @@ void*netlink_shared_mem_thread(void*arg)
 	{
 		printf("RaspberryPi buffer =%d\n",*shdata);
 		traffic_sign = *shdata;
-		usleep(500000);
+	//	usleep(500000);
 	}
 	/* detach from the segment: */
 	if (shmdt(data_shm) == -1) {
@@ -437,8 +437,7 @@ void*display(void*arg)
 			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
 		else
 			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
-		printf("traffic sign = %d\n", traffic_sign);
-		sleep(1);
+		//sleep(1);
 		
 	}
 
@@ -472,18 +471,17 @@ void*print_shared_mem_thread(void*arg)
 	perror("shmat");
 	exit(1);
 	}
-	printf("traffic_sign = %d\n", traffic_sign);
 	shdata = (int*)data_shm;
 
 	while(1) 
 	{
 		*shdata = traffic_sign;
 	
-		if(traffic_sign)
-			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
-		else
-			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
-		sleep(1);
+//		if(traffic_sign)
+//			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
+//		else
+//			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
+		//sleep(1);
 		
 	}
 
