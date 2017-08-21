@@ -1,1 +1,0 @@
-cmd_/home/pi/RC/motor_control/sensor.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/RC/motor_control/sensor.ko /home/pi/RC/motor_control/sensor.o /home/pi/RC/motor_control/sensor.mod.o ;  true
