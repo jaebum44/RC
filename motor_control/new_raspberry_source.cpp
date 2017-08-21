@@ -93,7 +93,7 @@ void calc_vals( void )
 	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value );
 	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value );
 
-	//sleep(1);
+	usleep(10000);
 }
 
 void* send_pack( void* arg )
@@ -243,15 +243,13 @@ void*netlink_thread(void*arg)
 	    dist=((int*)NLMSG_DATA(nlh));
 	    *dist -= 10;
 	    printf("Received message payload : %d cm %d\n",*dist,i);
-		//usleep(200000);
+		usleep(200000);
 		i++;
 		
 		if(*dist < 20)
 			car_ctl_T.ultra_sonic_value = 1;
 		else
 			car_ctl_T.ultra_sonic_value = 0;
-
-		car_ctl_T.traffic_sign_value = traffic_sign;
 
 		close(sock_fd);	//소켓을 연결하고 다시 닫아야 한다 while문에서  커널과 앱간의 연결하는 디스크립터 
 	}
@@ -296,8 +294,8 @@ void*netlink_shared_mem_thread(void*arg)
 	shdata = (int*)data_shm;
 	while(1)
 	{
-		printf("RaspberryPi buffer =%d\n",*shdata);
 		traffic_sign = *shdata;
+		car_ctl_T.traffic_sign_value = traffic_sign;
 	//	usleep(500000);
 	}
 	/* detach from the segment: */
@@ -475,8 +473,8 @@ void*print_shared_mem_thread(void*arg)
 
 	while(1) 
 	{
-		*shdata = traffic_sign;
-	
+      		*shdata = traffic_sign;
+
 //		if(traffic_sign)
 //			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
 //		else

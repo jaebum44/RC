@@ -60,18 +60,18 @@ void* recv_pack( void* arg )
 	{
 		if( digitalRead( RECV_PACK1 ) )
 		{
-			// fast
 			printf("stop\n");
+			dc_motor=0;
 		}
 		else if( digitalRead( RECV_PACK2 ) )
 		{
-			// slow
 			printf("slow\n");
+			dc_motor=1100;
 		}
 		else
 		{
-			// stop
 			printf("fast\n");
+			dc_motor=1250;
 		}
 	}
 	sleep(1000);
