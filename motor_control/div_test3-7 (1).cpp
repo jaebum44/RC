@@ -38,9 +38,10 @@ using namespace std;
 #define in4 27
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
-#define COMM_PACK 2
 #define RECV_PACK1 24 
 #define RECV_PACK2 25 
+
+#define DEBUG_MODE 0
 
 typedef int(*FCMP)(const void*, const void*);
 
@@ -55,7 +56,7 @@ void*kill_process(void*arg);
 void* recv_pack( void* arg );
 
 int DC[ ][ 2 ] = \
-	{ 1250	, 1100,
+	{ 1100	, 550,
 	  0	, 0	};
 
 void* recv_pack( void* arg )
