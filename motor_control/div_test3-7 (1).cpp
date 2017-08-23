@@ -62,9 +62,12 @@ float DC[ ][ 2 ] = \
 
 void* recv_pack( void* arg )
 {
-	dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
-	printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
-	sleep(1000);
+	while( 1 )
+	{
+		dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+		printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
+		sleep(1000);
+	}
 }
 
 int cmp_f(const void*p, const void*k)
