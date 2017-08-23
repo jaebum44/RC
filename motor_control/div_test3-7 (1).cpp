@@ -275,7 +275,7 @@ void*web_opencv(void*arg)
 				if(sl_servo < src.cols*11/16)
 				{
 					printf("turn left \n");
-					servo=210;//170;
+					servo=170;
 					//dc_motor=recv_pack();
 				}
 
@@ -292,7 +292,7 @@ void*web_opencv(void*arg)
 				//	servo+=1.5;
 				//else
 					printf("turn little left\n");
-					servo=230;//210;
+					servo=210;
 					//dc_motor=recv_pack();
 				}
 
@@ -305,13 +305,13 @@ void*web_opencv(void*arg)
 				if(sl_servo > src.cols*5/16)
 				{
 					printf("turn right \n");
-					servo=270;//310;
+					servo=310;
 					//dc_motor=recv_pack();
 				}
 				else
 				{
 					printf("turn little right \n");
-					servo=250;//270;
+					servo=270;
 					//dc_motor=recv_pack();
 				}
 				
