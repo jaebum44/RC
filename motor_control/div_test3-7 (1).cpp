@@ -55,7 +55,7 @@ void*wheel_a(void*arg);
 void*kill_process(void*arg);
 
 int DC[ ][ 2 ] = \
-	{ 1400	, 1100,
+	{ 1250	, 1100,
 	  0	, 0	};
 
 int cmp_f(const void*p, const void*k)
@@ -263,7 +263,7 @@ void*web_opencv(void*arg)
 				{
 					printf("turn left \n");
 					servo=170;
-					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					dc_motor = 1.2 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 				}
 
 				//printf("%.2f\n",(float)((-1)*(y_val)/sl));
@@ -294,7 +294,7 @@ void*web_opencv(void*arg)
 				{
 					printf("turn right \n");
 					servo=310;
-					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					dc_motor = 1.2 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 				else
