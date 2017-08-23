@@ -247,6 +247,7 @@ void*web_opencv(void*arg)
 
 		sl_servo=(float)((-1)*(y_val_min)/sl_min);
 		
+		dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 		//if(j==1)
 		//{
 
@@ -263,7 +264,8 @@ void*web_opencv(void*arg)
 				{
 					printf("turn left \n");
 					servo=170;
-					dc_motor = 1.2 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					//dc_motor = 1.5 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					dc_motor *= 1.5;
 				}
 
 				//printf("%.2f\n",(float)((-1)*(y_val)/sl));
@@ -280,7 +282,7 @@ void*web_opencv(void*arg)
 				//else
 					printf("turn little left\n");
 					servo=210;
-					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					//dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 
@@ -294,14 +296,15 @@ void*web_opencv(void*arg)
 				{
 					printf("turn right \n");
 					servo=310;
-					dc_motor = 1.2 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					//dc_motor = 1.5 * DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					dc_motor *= 1.5;
 					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 				else
 				{
 					printf("turn little right \n");
 					servo=270;
-					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					//dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 				
@@ -311,7 +314,7 @@ void*web_opencv(void*arg)
 			{
 				printf("forward\n");
 				servo=240;
-				dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+				//dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 				printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				sem_post(&servo_sync);
 			}
