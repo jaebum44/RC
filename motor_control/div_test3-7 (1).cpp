@@ -55,7 +55,7 @@ void*wheel_a(void*arg);
 void*kill_process(void*arg);
 
 int DC[ ][ 2 ] = \
-	{ 1700	, 1100,
+	{ 1600	, 1100,
 	  0	, 0	};
 
 int cmp_f(const void*p, const void*k)
