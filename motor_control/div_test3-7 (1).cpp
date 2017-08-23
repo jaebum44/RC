@@ -45,8 +45,8 @@ using namespace std;
 
 typedef int(*FCMP)(const void*, const void*);
 
-float servo;
-float dc_motor;
+int servo;
+int dc_motor;
 char for_exit;
 
 void*servo_control(void*arg);
@@ -54,21 +54,9 @@ void*web_opencv(void*arg);
 void*wheel_a(void*arg);
 void*kill_process(void*arg);
 
-void* recv_pack( void* );
-
-float DC[ ][ 2 ] = \
+int DC[ ][ 2 ] = \
 	{ 1500	, 1100,
 	  0	, 0	};
-
-void* recv_pack( void* arg )
-{
-	while( 1 )
-	{
-		dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
-		printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
-		sleep(1000);
-	}
-}
 
 int cmp_f(const void*p, const void*k)
 {
@@ -119,9 +107,6 @@ int main()
 	pca9685PWMReset(fd);
 
 	pthread_t pid[4];
-	pthread_t main_thrd;
-
-	pthread_create(&main_thrd,NULL,recv_pack,NULL);
 
 	//omp_set_num_threads(4); //쓰레드에 코어 4개를 사용
 
@@ -150,7 +135,6 @@ int main()
 	pthread_join(pid[1],NULL);
 	pthread_join(pid[2],NULL);
 	pthread_join(pid[3],NULL);
-	pthread_join(main_thrd,NULL);
 
 	return 0;
 }
@@ -279,7 +263,7 @@ void*web_opencv(void*arg)
 				{
 					printf("turn left \n");
 					servo=170;
-					//dc_motor=recv_pack();
+					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
 				}
 
 				//printf("%.2f\n",(float)((-1)*(y_val)/sl));
@@ -296,7 +280,8 @@ void*web_opencv(void*arg)
 				//else
 					printf("turn little left\n");
 					servo=210;
-					//dc_motor=recv_pack();
+					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 
 				sem_post(&servo_sync);
@@ -309,13 +294,15 @@ void*web_opencv(void*arg)
 				{
 					printf("turn right \n");
 					servo=310;
-					//dc_motor=recv_pack();
+					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 				else
 				{
 					printf("turn little right \n");
 					servo=270;
-					//dc_motor=recv_pack();
+					dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+					printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				}
 				
 				sem_post(&servo_sync);
@@ -324,7 +311,8 @@ void*web_opencv(void*arg)
 			{
 				printf("forward\n");
 				servo=240;
-				//dc_motor=recv_pack();
+				dc_motor = DC[ digitalRead( RECV_PACK1 ) ][ digitalRead( RECV_PACK2 ) ];
+				printf("%d %d\n", digitalRead( RECV_PACK1 ), digitalRead( RECV_PACK2 ));
 				sem_post(&servo_sync);
 			}
 		//	j=0;
