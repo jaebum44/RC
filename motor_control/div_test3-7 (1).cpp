@@ -275,15 +275,14 @@ void*web_opencv(void*arg)
 			{
 				if(sl_servo < src.cols*11/16)
 				{
-					printf("turn little left\n");
-					servo=170;
+					printf("turn left \n");
+					servo=210//170;
 					dc_motor=1250;
 				}
 
 				//printf("%.2f\n",(float)((-1)*(y_val)/sl));
 				else
 				{
-					printf("turn left \n");
 				//sl_theta_length=sizeof(sl_theta)/sizeof(sl_theta[0]);
 				//func(sl_theta,sl_theta_length,sizeof(sl_theta[0]),cmp_f);
 				//sl_theta_mid=sl_theta[get_Median(sl_theta,sl_theta_length)];
@@ -293,7 +292,8 @@ void*web_opencv(void*arg)
 				//if(servo<24.5)
 				//	servo+=1.5;
 				//else
-					servo=210;
+					printf("turn little left\n");
+					servo=230//210;
 					dc_motor=1250;
 				}
 
@@ -305,14 +305,14 @@ void*web_opencv(void*arg)
 
 				if(sl_servo > src.cols*5/16)
 				{
-					printf("turn little right \n");
-					servo=310;
+					printf("turn right \n");
+					servo=270//310;
 					dc_motor=1250;
 				}
 				else
 				{
-					printf("turn right \n");
-					servo=270;
+					printf("turn little right \n");
+					servo=250//270;
 					dc_motor=1250;
 				}
 				
