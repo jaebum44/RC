@@ -56,7 +56,7 @@ void*kill_process(void*arg);
 void* recv_pack( void* arg );
 
 int DC[ ][ 2 ] = \
-	{ 1500	, 1250,
+	{ 2000	, 1500,
 	  0	, 0	};
 
 void* recv_pack( void* arg )
