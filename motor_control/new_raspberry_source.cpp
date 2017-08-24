@@ -72,9 +72,10 @@ int*dist;
 
 shard_data car_ctl_T;
 
-int packet[ ] = \
-	{ 1250,		// fast
-	  1100 };	// slow 
+key_t key;
+int shmid;
+int *shdata;
+void *data_shm;
 
 void calc_vals( void )
 {
@@ -109,11 +110,6 @@ int main( int argc, char** argv )
 	int		fork_pid, status;
 	pthread_t	main_thrd;
 
-	key_t key;
-	int shmid;
-	int *shdata;
-	void *data_shm;
-
 	/* make the key: */
 	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
 	perror("ftok");
@@ -132,7 +128,6 @@ int main( int argc, char** argv )
 	perror("shmat");
 	exit(1);
 	}
-	printf("traffic_sign = %d\n", traffic_sign);
 	shdata = (int*)data_shm;
 
 	pthread_create( &main_thrd, NULL, &send_pack, NULL );
@@ -269,15 +264,7 @@ void*netlink_thread(void*arg)
 
 void*netlink_shared_mem_thread(void*arg)
 { 
-
-	key_t key;
-	int shmid;
-
-	int mode;
 	int save_distance=0;
-	int *shdata;
-	void *data_shm;
-
 
 //	/* make the key: */
 //	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
@@ -452,11 +439,6 @@ void*display(void*arg)
 
 void*print_shared_mem_thread(void*arg)
 {
-	key_t key;
-	int shmid;
-	int mode;
-	int *shdata;
-	void *data_shm;
 //	/* make the key: */
 //	if ((key = 1234) == -1) {
 //	perror("ftok");
