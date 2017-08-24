@@ -321,7 +321,7 @@ void*web_opencv(void*arg)
 				//dc_motor = DC[ command[0] ][ command[1] ];
 				sem_post(&servo_sync);
 			}
-			printf("%d %d\n", command[0], command[1]);
+			usleep(10000);
 		//	j=0;
 		//}
 		//else
