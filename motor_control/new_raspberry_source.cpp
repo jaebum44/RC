@@ -114,6 +114,12 @@ int main( int argc, char** argv )
 	int *shdata;
 	void *data_shm;
 
+	/* make the key: */
+	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
+	perror("ftok");
+	exit(1);
+	}
+
 	/* connect to (and possibly create) the segment: */
 	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
 	perror("shmget");
@@ -273,25 +279,25 @@ void*netlink_shared_mem_thread(void*arg)
 	void *data_shm;
 
 
-	/* make the key: */
-	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
-	perror("ftok");
-	exit(1);
-	}
-
-	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
-	perror("shmget");
-	exit(1);
-	}
-
-	/* attach to the segment to get a pointer to it: */
-	data_shm = shmat(shmid, (void *)0, 0);
-	if (data_shm == (void *)(-1)) {
-	perror("shmat");
-	exit(1);
-	}
-	shdata = (int*)data_shm;
+//	/* make the key: */
+//	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
+//	perror("ftok");
+//	exit(1);
+//	}
+//
+//	/* connect to (and possibly create) the segment: */
+//	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
+//	perror("shmget");
+//	exit(1);
+//	}
+//
+//	/* attach to the segment to get a pointer to it: */
+//	data_shm = shmat(shmid, (void *)0, 0);
+//	if (data_shm == (void *)(-1)) {
+//	perror("shmat");
+//	exit(1);
+//	}
+//	shdata = (int*)data_shm;
 	while(1)
 	{
 		traffic_sign = *shdata;
@@ -451,25 +457,25 @@ void*print_shared_mem_thread(void*arg)
 	int mode;
 	int *shdata;
 	void *data_shm;
-	/* make the key: */
-	if ((key = 1234) == -1) {
-	perror("ftok");
-	exit(1);
-	}
-
-	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
-	perror("shmget");
-	exit(1);
-	}
-
-	/* attach to the segment to get a pointer to it: */
-	data_shm = shmat(shmid, (void *)0, 0);
-	if (data_shm == (void *)(-1)) {
-	perror("shmat");
-	exit(1);
-	}
-	shdata = (int*)data_shm;
+//	/* make the key: */
+//	if ((key = 1234) == -1) {
+//	perror("ftok");
+//	exit(1);
+//	}
+//
+//	/* connect to (and possibly create) the segment: */
+//	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
+//	perror("shmget");
+//	exit(1);
+//	}
+//
+//	/* attach to the segment to get a pointer to it: */
+//	data_shm = shmat(shmid, (void *)0, 0);
+//	if (data_shm == (void *)(-1)) {
+//	perror("shmat");
+//	exit(1);
+//	}
+//	shdata = (int*)data_shm;
 
 	while(1) 
 	{
