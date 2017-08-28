@@ -60,28 +60,27 @@ int DC[ ][ 2 ] = \
 
 int cmp_f(const void*p, const void*k)
 {
-	return (int)(*(int*)p-*(int*)k);
+	if((*(float*)p) > (*(float*)k))
+		return 1;
+	else
+		return -1;
 }
 
-void*func(void*base,size_t num,size_t width, FCMP fcmp)
+void*func(void*base,int num,int width, FCMP fcmp)
 {
-	fcmp((char*)base+width*(0),(char*)base+width*(1));
+	//fcmp((char*)base+width*(0),(char*)base+width*(1));
 
 	qsort((void*)base,num,width,fcmp);
 }
 
 
-int get_Median(float*array, size_t arraySize)
+int get_Median(float*array, int arraySize)
 {
-	size_t center=arraySize/2; 
-
-	if (arraySize % 2 == 1)
-	{
-		return center; 
-	} 
+	if(arraySize%2!=0)
+		return arraySize>>1;
 	else
 	{
-		return (2*center-1)/2; 
+		return arraySize>>1-1;
 	}
 }
 
@@ -125,42 +124,21 @@ int main()
 		{
 			pthread_create(&pid[2],NULL,wheel_a,NULL);	
 		}
-		#pragma omp section
-		{
-			pthread_create(&pid[3],NULL,kill_process,NULL);	
-		}
 	}
 	
 	pthread_join(pid[0],NULL);
 	pthread_join(pid[1],NULL);
 	pthread_join(pid[2],NULL);
-	pthread_join(pid[3],NULL);
 
 	return 0;
 }
 
-void*kill_process(void*arg)
-{
-	while(1)
-	{
-		scanf("%c",&for_exit);
-	
-		if(for_exit == 'c')
-		{
-			pwmWrite(PIN_BASE+4,0);
-			//delay(50);
-			pwmWrite(PIN_BASE+5,0);
-			//delay(50);
-			//pwmWrite(PIN_BASE,240);
-			//delay(50);
-			exit(0);
-		}
-	}	
-	 
-}
 void*web_opencv(void*arg) 
 {
 	Mat src, dst1, color_dst1, blur1;
+
+	float*array_sl;
+	float*array_val;
 
 	float sl[10];
 	float  sl_min;
@@ -175,10 +153,7 @@ void*web_opencv(void*arg)
 	int theta;
 
 	float sl_servo;
-
-	//Point mask_points[1][6];
-
-	//int lineType=8;
+	float sl_servo2;
 
 	int command[2];
 
@@ -191,37 +166,28 @@ void*web_opencv(void*arg)
 	{
 		cap>>src;
 
-		Rect roi1(0,src.rows/2,src.cols,src.rows/2);
+		Rect roi1(0,src.rows*2/3,src.cols,src.rows/3);
 
 		Mat image_rot1=src(roi1);
 		
 		GaussianBlur(image_rot1,blur1,Size(9,9),2.0);
-		//erode(blur1,blur1,Mat(),Point(-1,-1));
-		//dilate(blur1,blur1,Mat(),Point(-1,-1));
 		Canny(blur1,dst1,150,200,3);
 		cvtColor(dst1,color_dst1,CV_GRAY2BGR);
 
-	//	mask_points[0][0]=Point(0,0);
-	//	mask_points[0][5]=Point(dst1.cols,0);
-	//	mask_points[0][2]=Point(dst1.cols/4,dst1.rows/2);
-	//	mask_points[0][3]=Point(dst1.cols*3/4,dst1.rows/2);
-	//	mask_points[0][1]=Point(0,dst1.rows);
-	//	mask_points[0][4]=Point(dst1.cols,dst1.rows);
-
-	//	const Point*ppt[1]={mask_points[0]};
-	//	int npt[]={6};
-	//	fillPoly(dst1,ppt,npt,1,Scalar(0,0,0),lineType);
-
-		
 		vector<Vec4i> lines;
 		HoughLinesP(dst1,lines,1,CV_PI/180,50,50,10);
-
+			
+		/*array_sl=new float[lines.size()];
+		array_val=new float[lines.size()];*/
 		#pragma omp parallel for       
 		for(int i=0;i<lines.size();i++)
 		{
+
 			sl[i]=sc(lines[i][0],lines[i][1],lines[i][2],lines[i][3]);
 			y_val[i]=(float)(lines[i][1]-sl[i]*(lines[i][0]));
-	
+			/*array_sl[i]=sc(lines[i][0],lines[i][1],lines[i][2],lines[i][3]);
+			array_val[i]=(float)(lines[i][1]-sl[i]*(lines[i][0]));
+			*/
 			if(!i)
 			{
 				sl_min=sl[i];
@@ -234,83 +200,92 @@ void*web_opencv(void*arg)
 				y_val_min=y_val[i];
 			}
 
-			//printf("%d %d\n",lines[i][1],lines[i][0]);
-			//printf("%d %d\n",lines[i][3],lines[i][2]);
-			
-			//printf("%.2f %.2f\n",sl, y_val);
 			line(color_dst1,Point(lines[i][0], lines[i][1]),Point(lines[i][2],lines[i][3]),Scalar(0,0,255),2,5);
 		}
 
-		//sl_theta[j]	=90-(180/3.1415f*atan2(src.cols/2-(float)((-1)*(y_val)/sl_avg),sl*src.cols/2+y_val));
+		/*qsort((void*)array_sl,sizeof(array_sl)/sizeof(array_sl[0]),sizeof(array_sl[0]),cmp_f);
+		qsort((void*)array_val,sizeof(array_val)/sizeof(array_val[0]),sizeof(array_val[0]),cmp_f);
 
-		//sl_theta_avg	+= sl_theta[j];
-
-		//line(color_dst1,Point(color_dst1.cols/2,color_dst1.rows),Point(color_dst1.cols/2+1,sl*(color_dst1.cols/2+1)+y_val),Scalar(255,0,255),2,5);
-
-		//line(color_dst1,Point(color_dst1.cols/2,color_dst1.rows),Point(color_dst1.cols/2,color_dst1.rows*4/6),Scalar(255,255,0),2,5);
+		int medians=get_Median(array_sl,sizeof(array_sl)/sizeof(array_sl[0]));
+		int medianv=get_Median(array_val,sizeof(array_val)/sizeof(array_val[0]));
+		*/
 
 		sl_servo=(float)((-1)*(y_val_min)/sl_min);
+		sl_servo2=((float)( color_dst1.rows/2-(y_val_min) ) / sl_min );
+		
 
-
-		printf("%d %d %.2f %.2f\n",color_dst1.cols,color_dst1.rows,sl_servo,y_val_min);
-			
-
-		//atan2(320-sl_servo,
+		/*printf("%d\n",lines.size());
+		sl_servo=(float)((-1)*(array_val[medianv])/array_sl[medians]);
+		*/
 
 		command[0] = digitalRead( RECV_PACK1 );
 		command[1] = digitalRead( RECV_PACK2 );
 		
-		printf("%d %d\n", command[0], command[1] );
+		//printf("%d %d\n", command[0], command[1] );
 		dc_motor = DC[ command[0] ][ command[1] ];
 
+		printf("%.2f\n",sl_min);
 
-			if( sl_min > 0 && sl_servo < src.cols*13/16)
+		if(abs(sl_min) < 4 && abs(sl_min) > 0.1)
+		{
+			if( sl_min > 0 && sl_servo < src.cols*15/16)
 			{
-				if(sl_servo < src.cols*11/16)
-				{
-					printf("turn left \n");
-					//servo=170;
-					servo=240-(14*theta)/9;
-					dc_motor *= 1.1;
-				}
-				else
-				{
-				//sl_theta_length=sizeof(sl_theta)/sizeof(sl_theta[0]);
-				//func(sl_theta,sl_theta_length,sizeof(sl_theta[0]),cmp_f);
-				//sl_theta_mid=sl_theta[get_Median(sl_theta,sl_theta_length)];
-				//sl_theta_avg=(float)sl_theta_avg/5;
-				//printf("theta = %.2f\n",sl_theta_avg);
-				//sl_theta_avg=0;
-				//if(servo<24.5)
-				//	servo+=1.5;
-				//else
-					printf("turn little left\n");
-					//servo=210;
-					servo=240-(14*theta)/9;
-					dc_motor *= 1;
-					//dc_motor = DC[ command[0] ][ command[1] ];
-				}
+
+				//if(sl_servo2 > src.cols/4)
+				//{
+					if(sl_servo < src.cols*7/16)
+					{
+						printf("turn left \n");
+						servo=160;
+						//servo=240-((float)(src.cols-sl_servo)/4)*1.3;
+						dc_motor *= 1.4;
+					}
+					else if(sl_servo < src.cols*11/16)
+					{
+						printf("turn little left\n");
+						servo=200;
+						//servo=240-((float)(src.cols-sl_servo)/4)*0.9;
+						dc_motor *= 1.3;
+						//dc_motor = DC[ command[0] ][ command[1] ];
+					}
+					else
+					{
+						printf("left correction\n");
+						servo=220;
+						dc_motor*=1.1;
+					}
+				//}
 
 				sem_post(&servo_sync);
 			}
-			else if( sl_min < 0 &&  sl_servo > src.cols*3/16) 
+			else if( sl_min < 0 &&  sl_servo > src.cols*1/16) 
 			{
 
-				if(sl_servo > src.cols*5/16)
-				{
-					printf("turn right \n");
-					//servo=310;
-					servo=240+(14*theta)/9;
-					dc_motor *= 1.2;
-				}
-				else
-				{
-					printf("turn little right \n");
-					//servo=270;
-					servo=240+(14*theta)/9;
-					dc_motor *= 1;
-					//dc_motor = DC[ command[0] ][ command[1] ];
-				}
+				//if(sl_servo2 < src.cols*3/4)
+				//{
+					if(sl_servo > src.cols*9/16)
+					{
+						
+						servo=320;
+						//servo=240+((float)(src.cols-sl_servo)>/4)*1.3;
+						printf("turn right %d\n",servo);
+						dc_motor *= 1.4;
+					}
+					else if(sl_servo > src.cols*5/16)
+					{
+						printf("turn little right \n");
+						servo=280;
+						//servo=240+((float)(src.cols-sl_servo)/4)*0.9;
+						dc_motor *= 1.3;
+						//dc_motor = DC[ command[0] ][ command[1] ];
+					}
+					else
+					{
+						printf("right correction\n");
+						servo=260;
+						//servo=240+((float)(src.cols-sl_servo)/4)*0.9;
+						dc_motor *= 1.1;
+					}
 				
 				sem_post(&servo_sync);
 			}
@@ -318,10 +293,13 @@ void*web_opencv(void*arg)
 			{
 				printf("forward\n");
 				servo=240;
-				dc_motor *= 1;
+				dc_motor *= 1.3;
 				//dc_motor = DC[ command[0] ][ command[1] ];
 				sem_post(&servo_sync);
 			}
+		}
+
+			
 
 		imshow("src",color_dst1);
 		waitKey(1);		
@@ -337,7 +315,7 @@ void*servo_control(void*arg) //서보모터 구동부
 
 	while(1)
 	{
-		sem_wait(&servo_sync);
+		//sem_wait(&servo_sync);
 		pwmWrite(PIN_BASE, servo);
 		delay(50);
 		sem_post(&motor_sync);
@@ -352,7 +330,7 @@ void*wheel_a(void*arg)  //dc모터 구동부
 	digitalWrite(in4, LOW);
 		
 	while(1) {
-		sem_wait(&motor_sync);
+		//sem_wait(&motor_sync);
 		pwmWrite(PIN_BASE+4,dc_motor);
 		//delay(100);
 		pwmWrite(PIN_BASE+5,dc_motor);
