@@ -31,6 +31,8 @@ using namespace std;
 #define PIN_BASE 300
 #define MAX_PWM 4096
 #define HERTZ 50
+#define MAX_SL 4
+#define MIN_SL 0.1
 
 #define in1 4
 #define in2 5
@@ -211,8 +213,6 @@ void*web_opencv(void*arg)
 		*/
 
 		sl_servo=(float)((-1)*(y_val_min)/sl_min);
-		sl_servo2=((float)( color_dst1.rows/2-(y_val_min) ) / sl_min );
-		
 
 		/*printf("%d\n",lines.size());
 		sl_servo=(float)((-1)*(array_val[medianv])/array_sl[medians]);
@@ -221,12 +221,11 @@ void*web_opencv(void*arg)
 		command[0] = digitalRead( RECV_PACK1 );
 		command[1] = digitalRead( RECV_PACK2 );
 		
-		//printf("%d %d\n", command[0], command[1] );
 		dc_motor = DC[ command[0] ][ command[1] ];
 
 		printf("%.2f\n",sl_min);
 
-		if(abs(sl_min) < 4 && abs(sl_min) > 0.1)
+		if(abs(sl_min) < MAX_SL && abs(sl_min) > MIN_SL)
 		{
 			if( sl_min > 0 && sl_servo < src.cols*15/16)
 			{
