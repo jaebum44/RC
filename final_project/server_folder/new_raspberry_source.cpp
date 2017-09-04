@@ -90,8 +90,8 @@ void calc_vals( void )
 	// sign == 1;	slow
 	// else;	fast
 
-	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value );
-	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value );
+	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value || ( car_ctl_T.traffic_sign_value >> 1 ) );
+	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value && 1 );
 	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value );
 }
 
