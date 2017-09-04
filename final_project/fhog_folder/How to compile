@@ -1,0 +1,2 @@
+/home/subin/Desktop/dlib/examples# g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg traffic_client_final_ex.cpp -o tfinal_ex `pkg-config --cflags --libs opencv`
+

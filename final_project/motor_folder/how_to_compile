@@ -1,0 +1,1 @@
+g++ div_test3-9.cpp -o run_div39 -lpthread -lwiringPi `pkg-config --cflags --libs opencv` -lwiringPiDev -lwiringPiPca9685 -lm
