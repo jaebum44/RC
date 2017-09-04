@@ -37,7 +37,6 @@ using namespace std;
 #define SP_FAST		1250
 #define SP_SLOW		1100
 #define SP_STOP		0
-#define SP_SLOW_STOP	0
 
 #define PARAM_LEFT1 15>>4
 #define PARAM_LEFT2 5>>4
@@ -64,9 +63,9 @@ void*wheel_a(void*arg);
 
 int servo;
 int dc_motor;
-int DC[ 2 ][ 4 ] = {
-	SP_FAST, SP_SLOW,      SP_STOP, SP_SLOW_STOP,
-	SP_STOP, SP_SLOW_STOP, SP_STOP, SP_SLOW_STOP
+int DC[ ][ 2 ] = {
+	SP_FAST, SP_SLOW, 
+	SP_STOP, SP_STOP
 };
 
 int main()
