@@ -55,6 +55,8 @@ int green_detect(Mat &);
 float dist_detect_tl(dlib::rectangle &);
 float dist_detect_ts(dlib::rectangle &r);
 
+int red_sign_on, child_sign_on, buf;
+
 int main(int argc, char** argv)
 {
 
@@ -158,6 +160,13 @@ void*img_handler(void*arg)
 	
 		tlight_msg_handler(img, dets_tlight.size(), connSock, tlight_r, tl_msg);
 		tsign_msg_handler(img, dets_tsign.size(), connSock, tsign_r, ts_msg);
+
+		buf= red_sign_on || child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
+
+		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
+		{
+			perror("send to traffic server failed");
+		}
 		
 		win.clear_overlay();
 		win.set_image(cimg);
@@ -202,8 +211,8 @@ int tlight_msg_handler(Mat &img, int dets, int connSock, dlib::rectangle &r, cha
 {
 	
 	float distance;
-	int sign_on= 0, i= 0;
-	int buf, red_positive;
+	int i= 0;
+	int red_positive;
 		
 	if(dets)
 	{
@@ -216,11 +225,10 @@ int tlight_msg_handler(Mat &img, int dets, int connSock, dlib::rectangle &r, cha
 		if(red_positive%2!=0)
 		{
 			if(distance > 20)
-				buf = 0;	
+				red_sign_on = 0;
 			else
 			{
-				sign_on = 1;
-				buf = 1;
+				red_sign_on = 2;
 				sprintf(distance_msg,"  COLOR : RED  \n  DISTANCE : %.2fCM",distance);				
 				cout<<"Stop"<<' '<<i<<endl;
 				i++;
@@ -228,30 +236,13 @@ int tlight_msg_handler(Mat &img, int dets, int connSock, dlib::rectangle &r, cha
 		}
 		else
 		{
-			buf=0;
+			red_sign_on = 0;
 			if(red_positive)
 				sprintf(distance_msg,"  COLOR : GREEN  \n  DISTANCE : %.2fCM",distance);	
 		}
-
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
-		{
-				perror("send to traffic server failed");
-		}
 	}
-	else
-	{		
-		cout<<dets<<endl;
 
-		if( !sign_on )
-			buf=0;
-		else
-			buf=1;
-
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
-		{
-			perror("send to traffic server failed");
-		}
-	}
+	cout<<dets<<endl;
 
 	return 0;
 }
@@ -260,44 +251,23 @@ int tsign_msg_handler(Mat &img, int dets, int connSock, dlib::rectangle &r, char
 {
 	
 	float distance;
-	int sign_on= 0, i= 0;
-	int buf, red_positive;
+	int i= 0;
+	int red_positive;
 		
 	if(dets)
 	{
-
 		distance=dist_detect_ts(r);
 		sprintf(distance_msg,"  DISTANCE : %.2fCM\n",distance);
 		
 		if(distance < 20)
 		{
-			sign_on = 1;
-			buf = 1;			
+			child_sign_on = 1;
 			cout<<"Stop"<<' '<<i<<endl;
 			i++;
 		}
-		else
-			buf=0;
-			
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
-		{
-				perror("send to traffic server failed");
-		}
 	}
-	else
-	{		
-		sprintf(distance_msg,"  detected sign : %d\n",dets);
 
-		if( !sign_on )
-			buf=0;
-		else
-			buf=1;
-
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
-		{
-			perror("send to traffic server failed");
-		}
-	}
+	sprintf(distance_msg,"  detected sign : %d\n",dets);
 
 	return 0;
 }
