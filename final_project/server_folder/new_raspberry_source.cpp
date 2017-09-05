@@ -90,9 +90,11 @@ void calc_vals( void )
 	// sign == 1;	slow
 	// else;	fast
 
-	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value || ( car_ctl_T.traffic_sign_value >> 1 ) );
-	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value && 1 );
-	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value );
+	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value | ( car_ctl_T.traffic_sign_value >> 1 ) );
+	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value & 1 );
+	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value & 1 );
+
+	usleep( 10000 );
 }
 
 void* send_pack( void* arg )
@@ -240,13 +242,14 @@ void*netlink_thread(void*arg)
 	    dist=((int*)NLMSG_DATA(nlh));
 	    *dist -= 10;
 	    printf("Received message payload : %d cm %d\n",*dist,i);
-		usleep(200000);
 		i++;
 		
-		if(*dist < 20)
+		if(abs(*dist) < 20)
 			car_ctl_T.ultra_sonic_value = 1;
 		else
 			car_ctl_T.ultra_sonic_value = 0;
+		
+      		usleep(200000);
 
 		close(sock_fd);	//소켓을 연결하고 다시 닫아야 한다 while문에서  커널과 앱간의 연결하는 디스크립터 
 	}
@@ -392,22 +395,32 @@ void*display(void*arg)
 
 	img = Mat::zeros(240 ,320, CV_8UC3);  
 	int imgSize = img.total() * img.elemSize();
+	int i=0;
+
 	while(1) 
 	{
 		VideoCapture cap(0);
+
+
 	 
 		cap.set(CAP_PROP_FRAME_WIDTH,320);
 		cap.set(CAP_PROP_FRAME_HEIGHT,240);
+
 		cap>>img;
 		
 		
 		cvtColor(img, imgGray, CV_BGR2RGB);
 
-		if(!img.isContinuous()) 
-		{ 
-			img = img.clone();
-			imgGray = img.clone();
-		}
+
+	//	Rect roi(imgGray.cols>>1,0,imgGray.cols>>1,imgGray.rows);
+	
+	//	imgGray=imgGray(roi);
+
+	//	if(!img.isContinuous()) 
+	//	{ 
+	//		img = img.clone();
+	//		imgGray = img.clone();
+	//	}
 		
 		
 		if(bytes=send(connSock, imgGray.data, imgSize, 0) < 0)
@@ -420,11 +433,6 @@ void*display(void*arg)
 			perror("traffic_sign receive fail");
 		}
 
-		if(traffic_sign)
-			cout<<"detected!! traffic_sign == "<<traffic_sign<<endl;
-		else
-			cout<<"no signs.... traffic_sign == "<<traffic_sign<<endl;
-		//sleep(1);
 		
 	}
 

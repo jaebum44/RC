@@ -15,8 +15,8 @@ int main()
 	{
 		cap >> img;
 		imshow("image",img);
-		//sprintf(savefile,"image%d.jpg",i++);
-		//imwrite(savefile,img);
+		sprintf(savefile,"image%d.jpg",i++);
+		imwrite(savefile,img);
 		waitKey(100);
 
 	}
