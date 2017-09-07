@@ -32,8 +32,8 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 
-#define IMG_KEY		1234
-#define SIG_KEY		2345	
+#define IMG_KEY		111
+#define SIG_KEY		222	
 #define MEM_SIZE	1024
 
 using namespace std;
