@@ -70,7 +70,6 @@ int pack_idx = 0;
 
 int*dist;
 
-key_t key;
 int shmid;
 int *shdata;
 void *data_shm;
@@ -108,12 +107,10 @@ void* send_pack( void* arg )
 int main( int argc, char** argv )
 {
 	int		fork_pid, status;
+	key_t	key;
 
 	/* make the key: */
-	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
-	perror("ftok");
-	exit(1);
-	}
+	key = 1234; //ftok("test_mydrv_shm.c", 'R')) == -1) {
 
 	/* connect to (and possibly create) the segment: */
 	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
