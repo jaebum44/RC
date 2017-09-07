@@ -29,8 +29,11 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/shm.h>
 
-#define KEY_NUM		1234
+#define IMG_KEY		1234
+#define SIG_KEY		2345	
 #define MEM_SIZE	1024
 
 using namespace std;
@@ -58,6 +61,9 @@ float dist_detect_tl(dlib::rectangle &);
 float dist_detect_ts(dlib::rectangle &r);
 
 int red_sign_on, child_sign_on, buf;
+pid_t pid;
+void*	shm_addr_img;
+void*	shm_addr_sig;
 
 int main(int argc, char** argv)
 {
@@ -70,6 +76,9 @@ int main(int argc, char** argv)
 	pthread_t pid;
 	int len;
 
+	int	shm_id_img;
+	int	shm_id_sig;
+
 	if(argc < 3)
 	{
 		perror("Usage: IP_address Port_num");
@@ -79,25 +88,53 @@ int main(int argc, char** argv)
 	serverAddr = argv[1];
 	serverPort = atoi(argv[2]);
 
+	pid = fork();
 
-	if((connSock=socket(PF_INET, SOCK_STREAM, 0)) < 0) 
+	if( pid == 0 )
 	{
-		perror("Traffic client can't open socket");
+		if((connSock=socket(PF_INET, SOCK_STREAM, 0)) < 0) 
+		{
+			perror("Traffic client can't open socket");
+			return -1;
+		}
+	
+		memset(&server_addr, 0, sizeof(server_addr));
+		server_addr.sin_family = AF_INET;
+		server_addr.sin_addr.s_addr = inet_addr(serverAddr);
+		server_addr.sin_port = htons(serverPort);
+	
+		if(connect(connSock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) 
+		{
+			perror("Traffic client can't connect");
+			return -1;
+		}
+	
+		printf("Traffic Client connect to Traffic server \n");
+	}
+
+	if(-1 == ( shm_id_img = shmget( (key_t)IMG_KEY, MEM_SIZE, IPC_CREAT)))
+	{
+		printf( "공유 메모리 생성 실패\n");
 		return -1;
 	}
 
-	memset(&server_addr, 0, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = inet_addr(serverAddr);
-	server_addr.sin_port = htons(serverPort);
-
-	if(connect(connSock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) 
+	if( ( void *)-1 == ( shm_addr_img = shmat( shm_id_img, ( void *)0, 0)))
 	{
-		perror("Traffic client can't connect");
+		printf( "공유 메모리 첨부 실패\n");
 		return -1;
 	}
 
-	printf("Traffic Client connect to Traffic server \n");
+	if(-1 == ( shm_id_sig = shmget( (key_t)SIG_KEY, MEM_SIZE, IPC_CREAT)))
+	{
+		printf( "공유 메모리 생성 실패\n");
+		return -1;
+	}
+
+	if( ( void *)-1 == ( shm_addr_sig = shmat( shm_id_sig, ( void *)0, 0)))
+	{
+		printf( "공유 메모리 첨부 실패\n");
+		return -1;
+	}
 
 	thr_id=pthread_create(&pid, NULL,img_handler,(void*)&connSock);
 
@@ -127,6 +164,7 @@ void*img_handler(void*arg)
 	{
 		clock_t ttime=clock();
 		Mat img;
+
 		img = Mat::zeros(120, 400,CV_8UC3);
 		   
 		int imgSize = img.total() * img.elemSize();
@@ -139,9 +177,17 @@ void*img_handler(void*arg)
 
 		clock_t timex=clock();
 
-		if(recv(connSock, iptr, imgSize, MSG_WAITALL) < 0) 
+		if( pid == 0 )
 		{
-			perror("receive from server failed");
+			if(recv(connSock, iptr, imgSize, MSG_WAITALL) < 0) 
+			{
+				perror("receive from server failed");
+			}
+			memcpy( shm_addr_img, iptr, sizeof imgSize );
+		}
+		else if( pid > 0 )
+		{
+			memcpy( iptr, shm_addr_img, sizeof imgSize );
 		}
 
 		Rect roi(img.cols>>1,0,img.cols>>1,img.rows);
@@ -154,103 +200,76 @@ void*img_handler(void*arg)
 
 		cout<<"  received time : "<<clock()-timex<<endl;
 
-		char tl_msg[50];
-		char ts_msg[50];
-
 		clock_t timey=clock();
 
-		int		shm_id;
-		void*	shm_addr;
-
-		if ( -1 == ( shm_id = shmget( (key_t)KEY_NUM, MEM_SIZE, IPC_CREAT¦0666)))
+		if( pid > 0 )
 		{
-			printf( "공유 메모리 생성 실패\n");
-			return -1;
-		}
+			char tl_msg[50];
 
-		if ( ( void *)-1 == ( shm_addr = shmat( shm_id, ( void *)0, 0)))
-		{
-			printf( "공유 메모리 첨부 실패\n");
-			return -1;
-		}
+			vector<dlib::rectangle> dets_tlight;
+			dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
+			dlib::pyramid_up(cimg);	
 
-		vector<dlib::rectangle> dets_tlight;
-		//vector<dlib::rectangle> dets_tsign;
+			scanner.set_detection_window_size(80, 80); 
+			detect_color = tlight_msg_handler(img, tl_msg);
 
-		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
-		dlib::pyramid_up(cimg);	
-
-		scanner.set_detection_window_size(80, 80); 
-		
-		detect_color = tlight_msg_handler(img, tl_msg);
-		//tsign_msg_handler(img, dets_tsign.size(), tsign_r, ts_msg);
-
-		if( detect_color )
-		{
-			dlib::deserialize("tlight2_detector.svm") >> detector_tlight;
-		//	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
-
-			dets_tlight = detector_tlight(cimg);
-		//	dets_tsign = detector_tsign(cimg);
+			if( detect_color )
+			{
+				dlib::deserialize("tlight2_detector.svm") >> detector_tlight;
 	
+				dets_tlight = detector_tlight(cimg);
+		
+				if(dets_tlight.size())
+				{
+					printf("detected\n");
+					//cout<<"dets left : "<<dets_tlight[0].left()<<"dets right : "<<dets_tlight[0].right()<<"dets top : "<<dets_tlight[0].top()<<"dets bottom() : "<<dets_tlight[0].bottom()<<endl;
+					red_sign_on  = 2;
+				}
+				cout<<"dlib time : "<<clock()-timey<<endl;
+		
+				create_msg_box(dets_tlight, tlight_r);
+	
+				detect_color = 0;
+			}
+
+			memcpy( shm_addr_sig, &red_sign_on, sizeof red_sign_on );
+
+			printf("red_sign_on = %d\n", red_sign_on );
+
+			red_sign_on = 0;
+
 			if(dets_tlight.size())
 			{
-				printf("detected\n");
-				//cout<<"dets left : "<<dets_tlight[0].left()<<"dets right : "<<dets_tlight[0].right()<<"dets top : "<<dets_tlight[0].top()<<"dets bottom() : "<<dets_tlight[0].bottom()<<endl;
-				red_sign_on  = 2;
-			}
-			cout<<"dlib time : "<<clock()-timey<<endl;
-	
-			create_msg_box(dets_tlight, tlight_r);
-		//	create_msg_box(dets_tsign, tsign_r);
-
-			detect_color = 0;
+				tlight_r.bottom()=tlight_r.top()-1;
+			}		
 		}
-
-		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
-
-		printf("red_sign_on = %d\n", red_sign_on );
-
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
+		else if( pid == 0 )
 		{
-			perror("send to traffic server failed");
+			char ts_msg[50];
+
+			vector<dlib::rectangle> dets_tsign;
+			dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
+			dlib::pyramid_up(cimg);	
+
+			scanner.set_detection_window_size(80, 80); 
+			tsign_msg_handler(img, dets_tsign.size(), tsign_r, ts_msg);
+
+			dlib::deserialize("tsign_detector.svm") >> detector_tsign;
+			dets_tsign = detector_tsign(cimg);
+			create_msg_box(dets_tsign, tsign_r);
+
+			memcpy( &red_sign_on, shm_addr_sig, sizeof red_sign_on );
+
+			buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
+
+			if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
+			{
+				perror("send to traffic server failed");
+			}
 		}
-
-		red_sign_on = 0;
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		clock_t timez=clock();
-//		win.clear_overlay();
-//		win.set_image(cimg);
-//		win.add_overlay(dets_tlight, dlib::rgb_pixel(255,255,255));
-//		win.add_overlay(dets_tsign, dlib::rgb_pixel(255,255,255));
-	
-		if(dets_tlight.size())
-		{
-			tlight_r.bottom()=tlight_r.top()-1;
-//			win.add_overlay(tlight_r, dlib::rgb_pixel(255,255,255),tl_msg);	
-		}		
 		
-//		if(dets_tsign.size())
-//		{
-//			tsign_r.bottom()=tsign_r.top()-1;
-//			win.add_overlay(tsign_r, dlib::rgb_pixel(255,255,255),ts_msg);	
-//		}
 		cout<<"window time : "<<clock()-timez<<endl;
 		cout<<"one while time : "<<clock()-ttime<<endl;
 
@@ -265,9 +284,6 @@ void*img_handler(void*arg)
 
 void create_msg_box(std::vector<dlib::rectangle> &dets, dlib::rectangle &r)
 {
-
-
-
 	if(dets.size())
 	{
 		if(dets[0].left() > 0)
@@ -281,7 +297,6 @@ void create_msg_box(std::vector<dlib::rectangle> &dets, dlib::rectangle &r)
 		else
 			r.top()=0;
 	}
-
 }
 
 
