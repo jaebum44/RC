@@ -31,6 +31,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/shm.h>
+#include <stdlib.h>
 
 #define IMG_KEY		111
 #define SIG_KEY		222	
@@ -52,7 +53,6 @@ namespace HSV_CONST
 
 void*img_handler(void*);
 int tlight_msg_handler(Mat &, char*);
-int tsign_msg_handler(Mat &, int, char*);
 void create_msg_box(std::vector<dlib::rectangle> &, dlib::rectangle &);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 		printf("Traffic Client connect to Traffic server \n");
 	}
 
-	if(-1 == ( shm_id_img = shmget( (key_t)IMG_KEY, MEM_SIZE, IPC_CREAT)))
+	if(-1 == ( shm_id_img = shmget( (key_t)IMG_KEY, MEM_SIZE, IPC_CREAT | 0666)))
 	{
 		printf( "공유 메모리 생성 실패\n");
 		return -1;
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	if(-1 == ( shm_id_sig = shmget( (key_t)SIG_KEY, MEM_SIZE, IPC_CREAT)))
+	if(-1 == ( shm_id_sig = shmget( (key_t)SIG_KEY, MEM_SIZE, IPC_CREAT | 0666)))
 	{
 		printf( "공유 메모리 생성 실패\n");
 		return -1;
@@ -246,6 +246,7 @@ void*img_handler(void*arg)
 		else if( pid == 0 )
 		{
 			char ts_msg[50];
+			int ret;
 
 			vector<dlib::rectangle> dets_tsign;
 			dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
@@ -259,7 +260,8 @@ void*img_handler(void*arg)
 			if(dets_tsign.size())
 			{
 				printf("child sign detected\n");
-				tsign_msg_handler(img, ts_msg);
+				child_sign_on = 1;
+				ret = system("mpg123 child_sign_voice.mp3");
 			}
 
 			create_msg_box(dets_tsign, tsign_r);
@@ -330,15 +332,6 @@ int tlight_msg_handler(Mat &img, char*distance_msg)
 
 	return 0;
 }
-
-int tsign_msg_handler(Mat &img, char*distance_msg)
-{
-	child_sign_on = 1;
-	system("mpg123 child_sign_voice.mp3");
-
-	return 0;
-}
-
 
 float dist_detect_tl(dlib::rectangle &r)
 {
