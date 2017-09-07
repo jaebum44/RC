@@ -52,7 +52,7 @@ namespace HSV_CONST
 
 void*img_handler(void*);
 int tlight_msg_handler(Mat &, char*);
-int tsign_msg_handler(Mat &, int, dlib::rectangle &, char*);
+int tsign_msg_handler(Mat &, int, char*);
 void create_msg_box(std::vector<dlib::rectangle> &, dlib::rectangle &);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
@@ -60,10 +60,9 @@ int green_detect(Mat &);
 float dist_detect_tl(dlib::rectangle &);
 float dist_detect_ts(dlib::rectangle &r);
 
-int red_sign_on, child_sign_on, buf;
 pid_t pid;
-void*	shm_addr_img;
-void*	shm_addr_sig;
+void* shm_addr_img;
+void* shm_addr_sig;
 
 int main(int argc, char** argv)
 {
@@ -149,6 +148,7 @@ void*img_handler(void*arg)
 {
 	int connSock=*(int*)arg;
 	int detect_color = 0;
+	int red_sign_on = 0, child_sign_on = 0, buf = 0;
 	
 	typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6> > image_scanner_type; 
 	
@@ -221,7 +221,7 @@ void*img_handler(void*arg)
 		
 				if(dets_tlight.size())
 				{
-					printf("detected\n");
+					printf("red sign detected\n");
 					//cout<<"dets left : "<<dets_tlight[0].left()<<"dets right : "<<dets_tlight[0].right()<<"dets top : "<<dets_tlight[0].top()<<"dets bottom() : "<<dets_tlight[0].bottom()<<endl;
 					red_sign_on  = 2;
 				}
@@ -252,10 +252,16 @@ void*img_handler(void*arg)
 			dlib::pyramid_up(cimg);	
 
 			scanner.set_detection_window_size(80, 80); 
-			tsign_msg_handler(img, dets_tsign.size(), tsign_r, ts_msg);
 
 			dlib::deserialize("tsign_detector.svm") >> detector_tsign;
 			dets_tsign = detector_tsign(cimg);
+
+			if(dets_tsign.size())
+			{
+				printf("child sign detected\n");
+				tsign_msg_handler(img, ts_msg);
+			}
+
 			create_msg_box(dets_tsign, tsign_r);
 
 			memcpy( &red_sign_on, shm_addr_sig, sizeof red_sign_on );
@@ -325,27 +331,10 @@ int tlight_msg_handler(Mat &img, char*distance_msg)
 	return 0;
 }
 
-int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
+int tsign_msg_handler(Mat &img, char*distance_msg)
 {
-	
-	float distance;
-	int i= 0;
-	int red_positive;
-		
-	if(dets)
-	{
-		distance=dist_detect_ts(r);
-		sprintf(distance_msg,"  DISTANCE : %.2fCM\n",distance);
-		
-		if(distance < 20)
-		{
-			child_sign_on = 1;
-			cout<<"Stop"<<' '<<i<<endl;
-			i++;
-		}
-	}
-
-	sprintf(distance_msg,"  detected sign : %d\n",dets);
+	child_sign_on = 1;
+	system("mpg123 child_sign_voice.mp3");
 
 	return 0;
 }
