@@ -1,5 +1,12 @@
 # RC project
 
+Aimeos TYPO3 extension
+======================
+
+The repository contains the TYPO3 extension integrating the Aimeos e-commerce
+library into TYPO3. The extension provides plugins for e.g. filter, list and
+detail views, for searching products as well as baskets and the checkout process.
+
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
