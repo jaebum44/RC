@@ -82,14 +82,3 @@ write journal
 
 <https://drive.google.com/open?id=181hj2BIQw41JlRvIvNAiyvcg5SGY2thXSMtJz_hX9zQ>
 
-## git management
-
-code record
-
-record skill of team member
-
-write README.md
-
-## make RC car
-
-assembly RC car
