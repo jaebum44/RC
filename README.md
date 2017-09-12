@@ -35,14 +35,6 @@ The training examples used in this repository are from Korean road signs, but th
 
 ### Development Environment
 
-
-
-### Block Diagram
-
-![bd](./img/block_diagram.jpg)
-
-### Flow Chart
-
 line detection
 * Log into the TYPO3 back end
 * Click on ''Admin Tools::Extension Manager'' in the left navigation
@@ -51,6 +43,14 @@ line detection
 
 **Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
 <https://github.com/opencv/opencv>
+
+### Block Diagram
+
+![bd](./img/block_diagram.jpg)
+
+### Flow Chart
+
+![fc](./img/flow_chart.jpg)
 
 ## OpenCV
 
