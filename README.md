@@ -16,8 +16,8 @@ The training examples used in this repository are from Korean road signs, but th
 
 ## Table of content
 
-- [Introduction](#Introduction)
-    - [Development Environment](#development-Environment)
+- [Introduction](#introduction)
+    - [Development Environment](#development-environment)
     - [Block Diagram](#block-diagram)
     - [Flow Chart](#flow-chart)
     
