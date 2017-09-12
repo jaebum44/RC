@@ -1,9 +1,11 @@
 Bit Autonomous RC Car Project 
 ======================
 
-The repository contains the TYPO3 extension integrating the Aimeos e-commerce
-library into TYPO3. The extension provides plugins for e.g. filter, list and
-detail views, for searching products as well as baskets and the checkout process.
+Note: this repository was created for the final project of IoT embedded system developer course and won't receive any major updates. There are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. Still, you can use this repository as a study reference or for some practical purposes.
+
+This is a traffic sign detector and classifier that uses dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector.
+
+The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. Naver Map images can be used to train the detectors. 25~40 images are sufficient to train a good detector.
 
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
