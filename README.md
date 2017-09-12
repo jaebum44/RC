@@ -1,6 +1,4 @@
-# RC project
-
-Aimeos TYPO3 extension
+Bit Autonomous RC Car Project 
 ======================
 
 The repository contains the TYPO3 extension integrating the Aimeos e-commerce
