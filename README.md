@@ -16,24 +16,29 @@ The training examples used in this repository are from Korean road signs, but th
 
 ## Table of content
 
-- [Installation](#opencv)
-    - [TER](#typo3-extension-repository)
-    - [Composer](#composer)
-- [TYPO3 setup](#dlib)
-    - [Extension](#extension)
-    - [Database](#database)
-- [Page setup](#motor-control)
+- [Introduction](#Introduction)
+    - [Development Environment](#Development Environment)
+    - [Flow Chart](#Flow-Chart)
+- [Computer Vision](#Computer-Vision)
+    - [OpenCV](#OpenCV)
+    - [dlib](#lib)
+- [Device Driver](#Device-Driver)
     - [Upload the page tree file](#upload-the-page-tree-file)
     - [Go to the import view](#go-to-the-import-view)
     - [Import the uploaded page tree file](#import-the-uploaded-page-tree-file)
-- [License](#license)
+- [](#license)
 - [Links](#links)
 
 
 ## OpenCV
 
 line detection
+* Log into the TYPO3 back end
+* Click on ''Admin Tools::Extension Manager'' in the left navigation
+* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
+* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
 
+**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
 <https://github.com/opencv/opencv>
 
 ## dlib
