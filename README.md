@@ -4,6 +4,24 @@
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | dlib | device driver | dlib |
+| dlib | dlib | device driver | dlib |
+
+
+## Table of content
+
+- [Installation](#opencv)
+    - [TER](#typo3-extension-repository)
+    - [Composer](#composer)
+- [TYPO3 setup](#dlib)
+    - [Extension](#extension)
+    - [Database](#database)
+- [Page setup](#motor-control)
+    - [Upload the page tree file](#upload-the-page-tree-file)
+    - [Go to the import view](#go-to-the-import-view)
+    - [Import the uploaded page tree file](#import-the-uploaded-page-tree-file)
+- [License](#license)
+- [Links](#links)
+
 
 ## OpenCV
 
@@ -13,25 +31,14 @@ line detection
 
 ## dlib
 
-sign detection
-
-traffic light detection
-
-<https://github.com/davisking/dlib>
-
 ## motor control
 
-PWM control · find appropriate value of motor
 
 ## device driver
 
-sensor control
 
 ## TCP/IP network
 
-wireless transfer
-
-<http://momoci99.blogspot.kr/2016/08/3-ap.html>
 
 ## schedule management
 
