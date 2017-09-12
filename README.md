@@ -39,7 +39,7 @@ The training examples used in this repository are from Korean road signs, but th
 
 ### Block Diagram
 
-![ex_BLock_D](./img/block_diagram.tif)
+![bd](./img/block_diagram.jpeg)
 
 ### Flow Chart
 
