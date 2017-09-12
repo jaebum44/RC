@@ -17,14 +17,14 @@ The training examples used in this repository are from Korean road signs, but th
 ## Table of content
 
 - [Introduction](#Introduction)
-    - [Development Environment](#Development-Environment)
-    - [Block Diagram](#Block-Diagram)
-    - [Flow Chart](#Flow-Chart)
+    - [Development Environment](#development-Environment)
+    - [Block Diagram](#block-diagram)
+    - [Flow Chart](#flow-chart)
     
-- [Computer Vision](#Computer-Vision)
-    - [OpenCV](#OpenCV)
-    - [dlib](#lib)
-- [Device Driver](#Device-Driver)
+- [Computer Vision](#computer-vision)
+    - [OpenCV](#openCV)
+    - [dlib](#dlib)
+- [Device Driver](#device-driver)
     - [Upload the page tree file](#upload-the-page-tree-file)
     - [Go to the import view](#go-to-the-import-view)
     - [Import the uploaded page tree file](#import-the-uploaded-page-tree-file)
