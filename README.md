@@ -46,7 +46,7 @@ line detection
 
 ### Block Diagram
 
-![bd](./img/block_diagram (1).jpg)
+![bd](./img/block_diagram.jpg)
 
 ### Flow Chart
 
