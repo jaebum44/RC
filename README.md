@@ -4,12 +4,6 @@
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | dlib | device driver | dlib |
-| motor control | tesseract | motor control | motor control |
-| device driver | git management | make RC car | make RC car |
-| TCP/IP network | | | |
-| schedule management | | | |
-| git management | | | |
-| make RC car | | | |
 
 ## OpenCV
 
@@ -24,12 +18,6 @@ sign detection
 traffic light detection
 
 <https://github.com/davisking/dlib>
-
-## tesseract
-
-string detection
-
-<https://github.com/tesseract-ocr/tesseract>
 
 ## motor control
 
