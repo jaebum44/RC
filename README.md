@@ -152,7 +152,7 @@ The detector will show test images with marks on and your results will be saved 
 ### How to use your own models in your project 
 
 
-1. How to compile
+1. How to compile:
 
 ```
 cd dlib/example/
@@ -160,7 +160,7 @@ cp fhog_object_detector_ex.cpp my_fhog_object_detector.cpp
 g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg my_fhog_object_detector.cpp -o my_fhog_ex `pkg-config --cflags --libs opencv` -DUSE_SSE2_INSTRUCTIONS=ON -DUSE_AVX_INSTRUCTIONS=ON -DUSE_SSE4_INSTRUCTIONS=ON
 ```
 
-2. How to recall detector.svm in your training code
+2. How to recall detector.svm in your training code:
 
 ```
 dlib::object_detector<image_scanner_type> detector;
