@@ -68,8 +68,6 @@ line detection
 
 ## dlib
 
-### traffic signs detection using fhog_object_detector
-
 ### install
 
 ```
@@ -83,8 +81,8 @@ sudo su
 cd dlib/example
 mkdir build
 cd build 
-cmake ..
-cmake --build .
+cmake .. -DUSE_AVX_INSTRUCTIONS=1
+cmake --build . --config Release
 ```
 
 if an example requires GUI, check this macro below to DLIB_NO_GUI_SUPPORT=OFF and confirm in CMakeLists.txt
