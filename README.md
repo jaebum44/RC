@@ -132,7 +132,7 @@ scanner.set_detection_window_size(80, 80);
 remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
 ```
 
-**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from <arg1> into <arg2>. If any of the image tags are in both files then the ones in <arg2> are deleted and replaced with the image tags from <arg1>. The results are saved into merged.xml and neither <arg1> or <arg2> files are modified.
+**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from <arg1> into <arg2>. If any of the image tags are in both files then the ones in <arg2> are deleted and replaced with the image tags from <arg1>. The results are saved into merged.xml and neither <arg1> or <arg2> files are modified. Use -h option for more details.  
 
 ```
 ./imglab --add <arg1> <arg2>
@@ -141,24 +141,35 @@ remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
         
 ### Train the fHOG_object_detector
 
-To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with .xml files in it. 
+To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
 
 ```
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 ```
 
-The detector will show test images with marks on and be saved to the file `face_detector.svm`.
+The detector will show test images with marks on and your results will be saved into the file `*svm`.
 
-### How to reuse face_detector.svm in your project 
+### How to use your own models in your project 
+
+
+1. How to compile
 
 ```
 cd dlib/example/
-cp fhog_object_detector_ex.cpp fhog_object_detector2_ex.cpp
-g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg fhog_object_detector2_ex.cpp -o fhog_object_detector2_ex `pkg-config --cflags --libs opencv` 
+cp fhog_object_detector_ex.cpp my_fhog_object_detector.cpp
+g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg my_fhog_object_detector.cpp -o my_fhog_ex `pkg-config --cflags --libs opencv` -DUSE_SSE2_INSTRUCTIONS=ON -DUSE_AVX_INSTRUCTIONS=ON -DUSE_SSE4_INSTRUCTIONS=ON
 ```
-Note :  This format is crucial. `yourownfile_ex.cpp -o yourownfile_ex` 
 
-Note : There's another way to compile using `make` in dir/build. In this case you have to make your own customized CMakeLists.txt 
+2. How to recall detector.svm in your training code
+
+```
+dlib::object_detector<image_scanner_type> detector;
+dlib::deserialize("my.svm") >> detector;
+```
+
+**Note:**  This format is crucial. `*_ex` 
+
+**Note:**  To compile using `cmake` in dir/build, make your own customized CMakeLists.txt 
 
 ## motor control
 
