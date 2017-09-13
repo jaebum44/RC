@@ -219,7 +219,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=225;
+				servo=220;
 				//dc_motor*=1.1;
 				printf("left correction %d\n",dc_motor);
 			}
@@ -243,7 +243,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=255;
+				servo=260;
 				//dc_motor*= 1.1;
 				printf("right correction %d\n",dc_motor);
 			}
@@ -254,7 +254,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 		{
 			printf("forward\n");
 			servo=240;
-			dc_motor*= 1.0;
+			dc_motor*= 1.2;
 			sem_post(&servo_sync);
 		}
 	}
