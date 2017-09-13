@@ -1,11 +1,7 @@
 Bit Autonomous RC Car Project 
 ======================
 
-Note: this repository was created for the final project of IoT embedded system developer course and won't receive any major updates. There are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. Still, you can use this repository as a study reference or for some practical purposes.
-
-This is a traffic sign detector and classifier that uses dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector.
-
-The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. Naver Map images can be used to train the detectors. 25~40 images are sufficient to train a good detector.
+Note: this repository was created for the final project of bit IoT embedded system developer course and won't receive any major updates. Still, you can use this repository as a study reference or for some practical purposes.
 
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
@@ -24,6 +20,10 @@ The training examples used in this repository are from Korean road signs, but th
 - [Computer Vision](#computer-vision)
     - [OpenCV](#openCV)
     - [dlib](#dlib)
+        - [Install](#install)
+        - [Build](#build)
+        - [Mark on Signs](#mark-on-signs)
+        
     
 - [Device Driver](#device-driver)
     - [Upload the page tree file](#upload-the-page-tree-file)
@@ -68,7 +68,9 @@ line detection
 
 ## dlib
 
-### install
+We've trained our own traffic sign detector using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
+
+### Install
 
 ```
 git clone https://github.com/davisking/dlib.git
