@@ -69,7 +69,6 @@ int traffic_sign;
 int pack_idx = 0;
 
 int*dist;
-
 int shmid;
 int *shdata;
 void *data_shm;
@@ -91,7 +90,7 @@ void calc_vals( void )
 
 	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value | ( car_ctl_T.traffic_sign_value >> 1 ) );
 	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value & 1 );
-	printf("%d %d\n", car_ctl_T.ultra_sonic_value, car_ctl_T.traffic_sign_value & 1 );
+	printf("%d %d\n", car_ctl_T.ultra_sonic_value | ( car_ctl_T.traffic_sign_value >> 1 ), car_ctl_T.traffic_sign_value & 1 );
 
 	usleep( 10000 );
 }
@@ -390,7 +389,7 @@ void*display(void*arg)
 	Mat img;
 	Mat imgGray;
 
-	img = Mat::zeros(240 ,320, CV_8UC3);  
+	img = Mat::zeros(120 ,300, CV_8UC3);  
 	int imgSize = img.total() * img.elemSize();
 	int i=0;
 
@@ -400,8 +399,8 @@ void*display(void*arg)
 
 
 	 
-		cap.set(CAP_PROP_FRAME_WIDTH,320);
-		cap.set(CAP_PROP_FRAME_HEIGHT,240);
+		cap.set(CAP_PROP_FRAME_WIDTH, 300);
+		cap.set(CAP_PROP_FRAME_HEIGHT,120);
 
 		cap>>img;
 		
