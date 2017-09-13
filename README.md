@@ -121,6 +121,7 @@ dlib/tools/imglab/build/imglab testing.xml
 
 3. Use `shift+click` to draw a box around signs.
 
+![bd](./img/sample2.jpg)
 
 **Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
 
@@ -151,8 +152,12 @@ dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 
 The detector will show test images with marks on and your results will be saved into the file `*svm`.
 
-### How to use your own models in your project 
+![bd](./img/sample1.jpg)
+![bd](./img/sample3.jpg)
+![bd](./img/sample4.jpg)
+![bd](./img/sample5.jpg)
 
+### How to use your own models in your project 
 
 1. How to compile:
 
