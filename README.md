@@ -57,6 +57,38 @@ line detection
 
 ## OpenCV
 
+### Install
+
+```
+sudo su |\
+sudo apt-get install build-essential cmake |\
+sudo apt-get install pkg-config |\
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev |\
+sudo apt-get install libxvidcore-dev libx264-dev libxine2-dev |\
+sudo apt-get install libv4l-dev v4l-utils |\
+sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev |\
+sudo apt-get install libqt4-dev |\
+sudo apt-get install mesa-utils libgl1-mesa-dri libqt4-opengl-dev |\
+sudo apt-get install libatlas-base-dev gfortran libeigen3-dev |\
+mkdir opencv |\
+cd opencv |\
+git clone https://github.com/Itseez/opencv/archive/3.2.0.zip |\
+unzip opencv.zip |\
+git clone https://github.com/Itseez/opencv_contrib/archive/3.2.0.zip |\
+unzip opencv_contrib.zip |\
+```
+
+### Build 
+
+```
+cd opencv-3.2.0 |\
+mkdir build |\
+cd build |\
+
+
+
+
 line detection
 * Log into the TYPO3 back end
 * Click on ''Admin Tools::Extension Manager'' in the left navigation
