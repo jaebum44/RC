@@ -119,16 +119,23 @@ dlib/tools/imglab/build/imglab testing.xml
 
 3. Use `shift+click` to draw a box around signs.
 
+
 **Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
 
 ``` 
-    scanner.set_detection_window_size(80, 80);  
+scanner.set_detection_window_size(80, 80);  
 ``` 
 
 **Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like below before running the trainer.
 
 ```
-    remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
+remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
+```
+
+**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from <arg1> into <arg2>. If any of the image tags are in both files then the ones in <arg2> are deleted and replaced with the image tags from <arg1>. The results are saved into merged.xml and neither <arg1> or <arg2> files are modified.
+
+```
+./imglab --add <arg1> <arg2>
 ```
         
         
