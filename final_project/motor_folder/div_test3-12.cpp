@@ -34,7 +34,7 @@ using namespace std;
 
 #define MAX_SL 3.5
 #define MIN_SL 0.1
-#define SP_FAST		1350//1250
+#define SP_FAST		1250
 #define SP_SLOW		1100
 #define SP_STOP		0
 #define SP_SLOW_STOP	0
@@ -254,7 +254,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 		{
 			printf("forward\n");
 			servo=240;
-			dc_motor*= 1.4;
+			dc_motor*= 1.0;
 			sem_post(&servo_sync);
 		}
 	}
