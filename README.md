@@ -20,11 +20,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Computer Vision](#computer-vision)
     - [OpenCV](#openCV)
     - [dlib](#dlib)
-        * [Install](#install)
-        * [Build](#build)
-        * [Mark signs on Images](#mark-signs-on-images)
         
-    
 - [Device Driver](#device-driver)
     - [Upload the page tree file](#upload-the-page-tree-file)
     - [Go to the import view](#go-to-the-import-view)
