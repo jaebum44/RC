@@ -85,7 +85,7 @@ unzip opencv_contrib.zip |\
 cd opencv-3.2.0 |\
 mkdir build |\
 cd build |\
-
+```
 
 
 
