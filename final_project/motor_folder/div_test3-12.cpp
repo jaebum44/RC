@@ -34,9 +34,10 @@ using namespace std;
 
 #define MAX_SL 3.5
 #define MIN_SL 0.1
-#define SP_FAST		1250
+#define SP_FAST		1350//1250
 #define SP_SLOW		1100
 #define SP_STOP		0
+#define SP_SLOW_STOP	0
 
 #define PARAM_LEFT1 15>>4
 #define PARAM_LEFT2 5>>4
@@ -63,9 +64,9 @@ void*wheel_a(void*arg);
 
 int servo;
 int dc_motor;
-int DC[ ][ 2 ] = {
-	SP_FAST, SP_SLOW, 
-	SP_STOP, SP_STOP
+int DC[ 2 ][ 4 ] = {
+	SP_FAST, SP_SLOW,      SP_STOP, SP_SLOW_STOP,
+	SP_STOP, SP_SLOW_STOP, SP_STOP, SP_SLOW_STOP
 };
 
 int main()
@@ -218,7 +219,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=220;
+				servo=225;
 				//dc_motor*=1.1;
 				printf("left correction %d\n",dc_motor);
 			}
@@ -242,7 +243,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=260;
+				servo=255;
 				//dc_motor*= 1.1;
 				printf("right correction %d\n",dc_motor);
 			}
@@ -253,7 +254,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 		{
 			printf("forward\n");
 			servo=240;
-			dc_motor*= 1.2;
+			dc_motor*= 1.4;
 			sem_post(&servo_sync);
 		}
 	}

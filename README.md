@@ -1,11 +1,7 @@
 Bit Autonomous RC Car Project 
 ======================
 
-Note: this repository was created for the final project of IoT embedded system developer course and won't receive any major updates. There are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. Still, you can use this repository as a study reference or for some practical purposes.
-
-This is a traffic sign detector and classifier that uses dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector.
-
-The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. Naver Map images can be used to train the detectors. 25~40 images are sufficient to train a good detector.
+Note: this repository was created for the final project of bit IoT embedded system developer course and won't receive any major updates. Still, you can use this repository as a study reference or for some practical purposes.
 
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
@@ -24,7 +20,7 @@ The training examples used in this repository are from Korean road signs, but th
 - [Computer Vision](#computer-vision)
     - [OpenCV](#openCV)
     - [dlib](#dlib)
-    
+        
 - [Device Driver](#device-driver)
     - [Upload the page tree file](#upload-the-page-tree-file)
     - [Go to the import view](#go-to-the-import-view)
@@ -57,18 +53,92 @@ line detection
 
 ## OpenCV
 
-line detection
-* Log into the TYPO3 back end
-* Click on ''Admin Tools::Extension Manager'' in the left navigation
-* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
-* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+### Install
 
-**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
-<https://github.com/opencv/opencv>
+```
+sudo apt-get install build-essential cmake |\
+sudo apt-get install pkg-config |\
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev |\
+sudo apt-get install libxvidcore-dev libx264-dev libxine2-dev |\
+sudo apt-get install libv4l-dev v4l-utils |\
+sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev |\
+sudo apt-get install libqt4-dev |\
+sudo apt-get install mesa-utils libgl1-mesa-dri libqt4-opengl-dev |\
+sudo apt-get install libatlas-base-dev gfortran libeigen3-dev |\
+mkdir opencv |\
+cd opencv |\
+git clone https://github.com/Itseez/opencv/archive/3.2.0.zip |\
+unzip opencv.zip |\
+git clone https://github.com/Itseez/opencv_contrib/archive/3.2.0.zip |\
+unzip opencv_contrib.zip |\
+```
+
+### Build 
+
+```
+cd opencv-3.2.0 |\
+mkdir build |\
+cd build |\
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+-D CMAKE_INSTALL_PREFIX=/usr/local \
+-D WITH_TBB=OFF \
+-D WITH_IPP=ON \
+-D WITH_1394=OFF \
+-D BUILD_WITH_DEBUG_INFO=OFF \
+-D BUILD_DOCS=OFF \
+-D INSTALL_C_EXAMPLES=ON \
+-D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=OFF \
+-D BUILD_TESTS=OFF \
+-D BUILD_PERF_TESTS=OFF \
+-D ENABLE_NEON=ON \
+-D WITH_QT=ON \
+-D WITH_OPENGL=ON \
+-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-3.2.0/modules \
+-D WITH_V4L=ON  \
+-D WITH_FFMPEG=ON \
+-D WITH_XINE=ON \
+-D BUILD_NEW_PYTHON_SUPPORT=ON \
+-D INSTALL_C_EXAMPLES=ON \
+-D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=ON \
+../
+```
+
+If there's no installation issues, you will see these messages below.  
+
+![fc](./img/pasted.jpg)
+
+```
+time make -j4
+sudo make install
+```
+
+### Options
+
+Check your directory using the statement below and confirm whether /usr/local/lib exists or not. 
+
+```
+cat /etc/ld.so.conf.d/*
+```
+If there's no file /usr/local/bin in your directory /etc/ld.so.conf.d/*  
+
+```
+sudo sh -c 'echo '/usr/local/lib' > /etc/ld.so.conf.d/opencv.conf'|\
+sudo ldconfig
+```
+You can check the version of OpenCV you've installed using the statement like below.
+
+```
+pkg-config --modversion openc
+```
 
 ## dlib
 
-### install
+We've trained our own traffic sign detector using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
+
+### Install
 
 ```
 git clone https://github.com/davisking/dlib.git
@@ -119,6 +189,7 @@ dlib/tools/imglab/build/imglab testing.xml
 
 3. Use `shift+click` to draw a box around signs.
 
+![bd](./img/sample8.jpg)
 
 **Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
 
@@ -141,7 +212,7 @@ remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
         
 ### Train the fHOG_object_detector
 
-To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
+To train a fHOG_object_detector, run `fhog_object_detector_ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
 
 ```
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
@@ -149,8 +220,14 @@ dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 
 The detector will show test images with marks on and your results will be saved into the file `*svm`.
 
-### How to use your own models in your project 
+![bd](./img/sample1.jpg)
+![bd](./img/sample5.jpg)
+![bd](./img/sample3.jpg)
+![bd](./img/sample4.jpg)
+![bd](./img/sample6.jpg)
+![bd](./img/sample7.jpg)
 
+### How to use your own models in your project 
 
 1. How to compile:
 
@@ -178,6 +255,15 @@ dlib::deserialize("my.svm") >> detector;
 
 
 ## TCP/IP network
+
+line detection
+* Log into the TYPO3 back end
+* Click on ''Admin Tools::Extension Manager'' in the left navigation
+* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
+* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+
+**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
+<https://github.com/opencv/opencv>
 
 
 ## schedule management
