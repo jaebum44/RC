@@ -60,7 +60,6 @@ line detection
 ### Install
 
 ```
-sudo su |\
 sudo apt-get install build-essential cmake |\
 sudo apt-get install pkg-config |\
 sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
@@ -85,18 +84,59 @@ unzip opencv_contrib.zip |\
 cd opencv-3.2.0 |\
 mkdir build |\
 cd build |\
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+-D CMAKE_INSTALL_PREFIX=/usr/local \
+-D WITH_TBB=OFF \
+-D WITH_IPP=ON \
+-D WITH_1394=OFF \
+-D BUILD_WITH_DEBUG_INFO=OFF \
+-D BUILD_DOCS=OFF \
+-D INSTALL_C_EXAMPLES=ON \
+-D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=OFF \
+-D BUILD_TESTS=OFF \
+-D BUILD_PERF_TESTS=OFF \
+-D ENABLE_NEON=ON \
+-D WITH_QT=ON \
+-D WITH_OPENGL=ON \
+-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-3.2.0/modules \
+-D WITH_V4L=ON  \
+-D WITH_FFMPEG=ON \
+-D WITH_XINE=ON \
+-D BUILD_NEW_PYTHON_SUPPORT=ON \
+-D INSTALL_C_EXAMPLES=ON \
+-D INSTALL_PYTHON_EXAMPLES=ON \
+-D BUILD_EXAMPLES=ON \
+../
 ```
 
+If there's no installation issues, you will see these messages below.  
 
+![fc](./img/pasted.jpg)
 
-line detection
-* Log into the TYPO3 back end
-* Click on ''Admin Tools::Extension Manager'' in the left navigation
-* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
-* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+```
+time make -j4
+sudo make install
+```
 
-**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
-<https://github.com/opencv/opencv>
+### Options
+
+Check your directory using the statement below and confirm whether /usr/local/lib exists or not. 
+
+```
+cat /etc/ld.so.conf.d/*
+```
+If there's no file /usr/local/bin in your directory /etc/ld.so.conf.d/*  
+
+```
+sudo sh -c 'echo '/usr/local/lib' > /etc/ld.so.conf.d/opencv.conf'|\
+sudo ldconfig
+```
+You can check the version of OpenCV you've installed using the statement like below.
+
+```
+pkg-config --modversion openc
+```
 
 ## dlib
 
@@ -176,7 +216,7 @@ remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
         
 ### Train the fHOG_object_detector
 
-To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
+To train a fHOG_object_detector, run `fhog_object_detector_ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
 
 ```
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
@@ -219,6 +259,15 @@ dlib::deserialize("my.svm") >> detector;
 
 
 ## TCP/IP network
+
+line detection
+* Log into the TYPO3 back end
+* Click on ''Admin Tools::Extension Manager'' in the left navigation
+* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
+* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+
+**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
+<https://github.com/opencv/opencv>
 
 
 ## schedule management
