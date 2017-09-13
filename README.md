@@ -153,9 +153,11 @@ dlib/example/build/fhog_object_detector_ex /path/to/dir/image
 The detector will show test images with marks on and your results will be saved into the file `*svm`.
 
 ![bd](./img/sample1.jpg)
-![bd](./img/sample4.jpg)
-![bd](./img/sample7.jpg)
+![bd](./img/sample5.jpg)
+![bd](./img/sample3.jpg)
 ![bd](./img/sample6.jpg)
+![bd](./img/sample7.jpg)
+![bd](./img/sample4.jpg)
 
 ### How to use your own models in your project 
 
