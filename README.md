@@ -119,6 +119,19 @@ dlib/tools/imglab/build/imglab testing.xml
 
 3. Use `shift+click` to draw a box around signs.
 
+**Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
+
+``` 
+    scanner.set_detection_window_size(80, 80);  
+``` 
+
+**Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like below before running the trainer.
+
+```
+    remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
+```
+        
+        
 ### Train the fHOG_object_detector
 
 To train a fHOG_object_detector, run `fhog_object_detector ex`. For example, to run the detector on the `/dir/image` folder with .xml files in it. 
