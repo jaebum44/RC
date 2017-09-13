@@ -2,7 +2,9 @@
 
 ## install
 
-<https://www.learnopencv.com/install-dlib-on-ubuntu/>
+```
+git clone https://github.com/davisking/dlib.git
+```
 
 ## Build
 
@@ -11,7 +13,7 @@ sudo su
 cd dlib/example
 mkdir build
 cd build 
-cmake ..
+cmake .. -DUSE_AVX_INSTRUCTIONS=ON 
 cmake --build .
 ```
 
