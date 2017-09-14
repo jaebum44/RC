@@ -32,7 +32,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Development Environment
 
-![bd](./img/de.jpg)
+![bd](./img/devel_envir.jpg)
 
 ### Project Software Layer
 
