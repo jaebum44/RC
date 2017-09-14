@@ -18,9 +18,9 @@
 #include <time.h>
 #include <errno.h>
 
-#include <omp.h>
-#include <wiringPi.h>
 #include "pca9685.h"
+#include <wiringPi.h>
+#include <omp.h>
 
 sem_t motor_sync;
 sem_t servo_sync;
@@ -28,39 +28,42 @@ sem_t servo_sync;
 using namespace cv;
 using namespace std;
 
-#define PIN_BASE 300
-#define MAX_PWM 4096
-#define HERTZ 50
+#define PIN_BASE 		300
+#define MAX_PWM 		4096
+#define HERTZ 			50
 
-#define MAX_SL 3.5
-#define MIN_SL 0.1
-#define SP_FAST		1250
-#define SP_SLOW		1100
-#define SP_STOP		0
+#define MAX_SL			3.5
+#define MIN_SL 			0.1
+#define SP_FAST			1250
+#define SP_SLOW			1100
+#define SP_STOP			0
 #define SP_SLOW_STOP	0
 
-#define PARAM_LEFT1 15>>4
-#define PARAM_LEFT2 5>>4
-#define PARAM_LEFT3 10>>4
+#define PARAM_LEFT1 	15>>4
+#define PARAM_LEFT2 	5>>4
+#define PARAM_LEFT3 	10>>4
 
-#define PARAM_RIGHT1 1>>4
-#define PARAM_RIGHT2 11>>4
-#define PARAM_RIGHT3 6>>4
+#define PARAM_RIGHT1 	1>>4
+#define PARAM_RIGHT2 	11>>4
+#define PARAM_RIGHT3 	6>>4
 
 
-#define in1 4
-#define in2 5
-#define in3 26
-#define in4 27
+#define in1				4
+#define in2 			5
+#define in3 			26
+#define in4 			27
+
+#define RECV_PACK1 		24 
+#define RECV_PACK2 		25 
+
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
-#define RECV_PACK1 24 
-#define RECV_PACK2 25 
 
 int motor_ctrl(float sl_servo,float sl_min, int cols);
 void*servo_control(void*arg);
 void*web_opencv(void*arg);
 void*wheel_a(void*arg);
+void init_motor(void);
 
 int servo;
 int dc_motor;
@@ -71,24 +74,7 @@ int DC[ 2 ][ 4 ] = {
 
 int main()
 {
-	wiringPiSetup();
-
-	pinMode( RECV_PACK1, INPUT );
-	pinMode( RECV_PACK2, INPUT );
-
-	int fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
-	if (fd < 0)
-	{
-		printf("Error in setup\n");
-		return fd;
-	}
-
-	pinMode(in1, OUTPUT);
-	pinMode(in2, OUTPUT);
-	pinMode(in3, OUTPUT);
-	pinMode(in4, OUTPUT);
-
-	pca9685PWMReset(fd);
+	init_motor();
 
 	pthread_t pid[3];
 
@@ -118,6 +104,28 @@ int main()
 	return 0;
 }
 
+init_motor()
+{
+		wiringPiSetup();
+
+		pinMode( RECV_PACK1, INPUT );
+		pinMode( RECV_PACK2, INPUT );
+
+		int fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
+		if (fd < 0)
+		{
+			cout<<"Error in setup"<<endl;
+			return fd;
+		}
+
+		pinMode(in1, OUTPUT);
+		pinMode(in2, OUTPUT);
+		pinMode(in3, OUTPUT);
+		pinMode(in4, OUTPUT);
+
+		pca9685PWMReset(fd);
+}
+
 void*web_opencv(void*arg) 
 {
 	Mat src, dst1, blur1, image_rot1;
@@ -144,7 +152,7 @@ void*web_opencv(void*arg)
 
 		image_rot1=src(roi1);
 		
-		GaussianBlur(image_rot1,blur1,Size(9,9),2.0);
+		GaussianBlur(image_rot1,blur1,Size(9,9),2);
 		Canny(blur1,dst1,150,200,3);
 
 		vector<Vec4i> lines;
@@ -175,7 +183,7 @@ void*web_opencv(void*arg)
 			line(image_rot1,Point(lines[i][0], lines[i][1]),Point(lines[i][2],lines[i][3]),Scalar(255,0,0),2,8);
 		}
 
-		addWeighted(image_rot1, 1.0, image_rot1, 0.3, 0, image_rot1);
+		addWeighted(image_rot1, 1.0, image_rot1, 1.0, 0, image_rot1);
 		line(image_rot1,Point(image_rot1.cols/2,image_rot1.rows),Point(image_rot1.cols/2,image_rot1.rows>>2),Scalar(0,0,0),2,8);
 
 
@@ -220,7 +228,6 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			else
 			{
 				servo=220;
-				//dc_motor*=1.1;
 				printf("left correction %d\n",dc_motor);
 			}
 
@@ -244,7 +251,6 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			else
 			{
 				servo=260;
-				//dc_motor*= 1.1;
 				printf("right correction %d\n",dc_motor);
 			}
 			
@@ -284,8 +290,6 @@ void*wheel_a(void*arg)  //dc모터 구동부
 	while(1) {
 		sem_wait(&motor_sync);
 		pwmWrite(PIN_BASE+4,dc_motor);
-		//delay(100);
 		pwmWrite(PIN_BASE+5,dc_motor);
-		//delay(100);
 	}			
 }
