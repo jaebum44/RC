@@ -14,25 +14,33 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 - [Introduction](#introduction)
     - [Development Environment](#development-environment)
+    - [Project Software Layer](#project-software-layer)
+    - [Technical Diagram](#technical-diagram)
     - [Block Diagram](#block-diagram)
     - [Flow Chart](#flow-chart)
     
-- [Computer Vision](#computer-vision)
-    - [OpenCV](#openCV)
-    - [dlib](#dlib)
+- [Opencv](#opencv)
+
+- [Machine Learning](#machine-learning)
         
 - [Device Driver](#device-driver)
-    - [Upload the page tree file](#upload-the-page-tree-file)
-    - [Go to the import view](#go-to-the-import-view)
-    - [Import the uploaded page tree file](#import-the-uploaded-page-tree-file)
 
-- [](#license)
+- [Network](#Network)
+    - [TCP/IP Protocol](#tcp/ip-protocol)
+    - [Netlink](#netlink)
 
-- [Links](#links)
 
 ## Introduction
 
 ### Development Environment
+
+![bd](./img/de.jpg)
+
+### Project Software Layer
+
+![bd](./img/ps.jpg)
+
+### Technical Diagram
 
 ![bd](./img/td.jpg)
 
@@ -49,8 +57,12 @@ Note: this repository was created for the final project of bit IoT embedded syst
 ### Install
 
 ```
-sudo apt-get install build-essential cmake |\
-sudo apt-get install pkg-config |\
+sudo apt-get install build-essential cmake 
+```
+```
+sudo apt-get install pkg-config 
+```
+```
 sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev |\
 sudo apt-get install libxvidcore-dev libx264-dev libxine2-dev |\
@@ -127,7 +139,7 @@ You can check the version of OpenCV you've installed using the statement like be
 pkg-config --modversion openc
 ```
 
-## dlib
+## Machine Learning
 
 We've trained our own traffic sign detector using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
 
@@ -241,13 +253,12 @@ dlib::deserialize("my.svm") >> detector;
 
 **Note:**  To compile using `cmake` in dir/build, make your own customized CMakeLists.txt 
 
-## motor control
+## Device Driver
 
 
-## device driver
+## Network
 
-
-## TCP/IP network
+### TCP/IP Protocol
 
 line detection
 * Log into the TYPO3 back end
@@ -258,12 +269,4 @@ line detection
 **Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
 <https://github.com/opencv/opencv>
 
-
-## schedule management
-
-project planning of team
-
-write journal
-
-<https://drive.google.com/open?id=181hj2BIQw41JlRvIvNAiyvcg5SGY2thXSMtJz_hX9zQ>
-
+### Netlink
