@@ -26,7 +26,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Device Driver](#device-driver)
 
 - [Network](#Network)
-    - [TCPIP Protocol](#tcpip-protocol)
+    - [TCP/IP Protocol](#tcpip-protocol)
     - [Netlink](#netlink)
 
 
