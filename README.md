@@ -19,7 +19,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
     - [Block Diagram](#block-diagram)
     - [Flow Chart](#flow-chart)
     
-- [Opencv](#opencv)
+- [OpenCV](#opencv)
 
 - [Machine Learning](#machine-learning)
  
