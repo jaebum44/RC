@@ -7,8 +7,8 @@ Note: this repository was created for the final project of bit IoT embedded syst
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | device driver | device driver | dlib |
-| Network | Git management | Hardware | Hardware |
-| Schedule management | dlib |  |  |
+| network | git management | hardware | hardware |
+| schedule management |  |  |  |
 
 ## Table of content
 
