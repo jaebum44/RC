@@ -116,11 +116,11 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 ../
 ```
 
-If there's no installation issues, you will see these messages below.  
+If there's no issues, you will see these messages below.  
 
 ![fc](./img/pasted.jpg)
 
-2. Complie 
+2. Compling 
 ```
 time make -j4
 sudo make install
@@ -147,7 +147,7 @@ pkg-config --modversion openc
 
 ## Machine Learning
 
-We've trained our own traffic sign detector using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
+We've trained our own traffic sign + traffic light detectors using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
 
 ### Install
 
