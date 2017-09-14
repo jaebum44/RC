@@ -26,7 +26,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Device Driver](#device-driver)
 
 - [Network](#Network)
-    - [TCP/IP Protocol](#tcp/ip-protocol)
+    - [TCP/IP Protocol](#tcp-/-ip-protocol)
     - [Netlink](#netlink)
 
 
@@ -56,13 +56,11 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Install
 
+1. Install Packages 
+
 ```
-sudo apt-get install build-essential cmake 
-```
-```
-sudo apt-get install pkg-config 
-```
-```
+sudo apt-get install build-essential cmake |\ 
+sudo apt-get install pkg-config |\
 sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev |\
 sudo apt-get install libxvidcore-dev libx264-dev libxine2-dev |\
@@ -71,6 +69,11 @@ sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev |\
 sudo apt-get install libqt4-dev |\
 sudo apt-get install mesa-utils libgl1-mesa-dri libqt4-opengl-dev |\
 sudo apt-get install libatlas-base-dev gfortran libeigen3-dev |\
+```
+
+2. Install OpenCV
+
+```
 mkdir opencv |\
 cd opencv |\
 git clone https://github.com/Itseez/opencv/archive/3.2.0.zip |\
