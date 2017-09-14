@@ -28,15 +28,15 @@ sem_t servo_sync;
 using namespace cv;
 using namespace std;
 
-#define PIN_BASE 		300
-#define MAX_PWM 		4096
-#define HERTZ 			50
+#define PIN_BASE 	300
+#define MAX_PWM 	4096
+#define HERTZ 		50
 
-#define MAX_SL			3.5
-#define MIN_SL 			0.1
-#define SP_FAST			1250
-#define SP_SLOW			1100
-#define SP_STOP			0
+#define MAX_SL		3.5
+#define MIN_SL 		0.1
+#define SP_FAST		1250
+#define SP_SLOW		1100
+#define SP_STOP		0
 #define SP_SLOW_STOP	0
 
 #define PARAM_LEFT1 	15>>4
@@ -48,13 +48,13 @@ using namespace std;
 #define PARAM_RIGHT3 	6>>4
 
 
-#define in1				4
-#define in2 			5
-#define in3 			26
-#define in4 			27
+#define in1		4
+#define in2 		5
+#define in3 		26
+#define in4 		27
 
-#define RECV_PACK1 		24 
-#define RECV_PACK2 		25 
+#define RECV_PACK1 	24 
+#define RECV_PACK2 	25 
 
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
