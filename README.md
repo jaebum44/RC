@@ -22,13 +22,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Opencv](#opencv)
 
 - [Machine Learning](#machine-learning)
-        
-- [Device Driver](#device-driver)
-
-- [Network](#Network)
-    - [TCP/IP Protocol](#tcpip-protocol)
-    - [Netlink](#netlink)
-
+ 
 
 ## Introduction
 
@@ -261,18 +255,3 @@ dlib::deserialize("my.svm") >> detector;
 
 ## Device Driver
 
-
-## Network
-
-### TCP/IP Protocol
-
-line detection
-* Log into the TYPO3 back end
-* Click on ''Admin Tools::Extension Manager'' in the left navigation
-* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
-* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
-
-**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
-<https://github.com/opencv/opencv>
-
-### Netlink
