@@ -32,15 +32,15 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Development Environment
 
-![bd](./img/devel_envir.jpg)
+![bd](./img/d_en.jpg)
 
 ### Project Software Layer
 
-![bd](./img/ps.jpg)
+![bd](./img/p_sl.jpg)
 
 ### Technical Diagram
 
-![bd](./img/td.jpg)
+![bd](./img/t_dg.jpg)
 
 ### Block Diagram
 
@@ -48,7 +48,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Flow Chart
 
-![fc](./img/flow_chart.jpg)
+![fc](./img/f_ch.jpg)
 
 ## OpenCV
 
