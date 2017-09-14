@@ -22,6 +22,10 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [OpenCV](#opencv)
 
 - [Machine Learning](#machine-learning)
+
+- [Network](#network)
+
+- [Device Driver](#device-driver)
  
 
 ## Introduction
