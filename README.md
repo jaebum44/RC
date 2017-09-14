@@ -118,7 +118,14 @@ If there's no issues, you will see these messages below.
 
 ![fc](./img/pasted.jpg)
 
-2. Compling 
+2. Compling
+
+Use parallel compling by -j option of make. Check out your cpu information with the statement like below. 
+
+```
+cat /proc/cpuinfo | grep processor | wc -l
+```
+Then determine the number of cores that you want to allocate for compiling
 ```
 time make -j4
 sudo make install
