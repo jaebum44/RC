@@ -6,9 +6,9 @@ Note: this repository was created for the final project of bit IoT embedded syst
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
-| Machine Learning | Git management | device driver | Machine Learning |
-| NetLink | dlib |  | Hardware |
-
+| dlib | device driver | device driver | dlib |
+| Network | Git management | Hardware | Hardware |
+| Schedule management | dlib |  |  |
 
 ## Table of content
 
@@ -26,7 +26,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Device Driver](#device-driver)
 
 - [Network](#Network)
-    - [TCP/IP Protocol](#tcp-ip-protocol)
+    - [TCPIP Protocol](#tcpip-protocol)
     - [Netlink](#netlink)
 
 
