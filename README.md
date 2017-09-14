@@ -71,7 +71,7 @@ sudo apt-get install mesa-utils libgl1-mesa-dri libqt4-opengl-dev |\
 sudo apt-get install libatlas-base-dev gfortran libeigen3-dev |\
 ```
 
-2. Install OpenCV
+2. Download OpenCV
 
 ```
 mkdir opencv |\
@@ -83,6 +83,8 @@ unzip opencv_contrib.zip |\
 ```
 
 ### Build 
+
+1. Build settings
 
 ```
 cd opencv-3.2.0 |\
@@ -118,6 +120,7 @@ If there's no installation issues, you will see these messages below.
 
 ![fc](./img/pasted.jpg)
 
+2. Complie 
 ```
 time make -j4
 sudo make install
