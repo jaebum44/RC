@@ -35,11 +35,6 @@
 using namespace std;
 using namespace cv;
 
-Mat img;
-
-sem_t recv_sync;
-sem_t show_sync;
-
 namespace HSV_CONST
 {
 	enum
@@ -59,9 +54,10 @@ void create_msg_box(std::vector<dlib::rectangle> &, dlib::rectangle &);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
 int green_detect(Mat &);
-float dist_detect_tl(dlib::rectangle &);
-float dist_detect_ts(dlib::rectangle &r);
+float dist_detect(dlib::rectangle &);
 
+Mat img;
+sem_t recv_sync, show_sync;
 int red_sign_on, child_sign_on, buf;
 
 int main(int argc, char** argv)
@@ -110,7 +106,6 @@ int main(int argc, char** argv)
 	thr_id=pthread_create(&pid[0], NULL,gstream_recv,(void*)&connSock);
 	thr_id=pthread_create(&pid[1], NULL,img_handler,(void*)&connSock);
 
-
 	pthread_join(pid[0], (void**)&status);
 	pthread_join(pid[1], (void**)&status);
 
@@ -121,19 +116,19 @@ int main(int argc, char** argv)
 
 void*gstream_recv(void*arg)
 {
+
 	VideoCapture vcap; 
  
 	string videoStreamAddress = "rtsp://192.168.1.33:8554/test";	
 	
 	vcap.open(videoStreamAddress);
 
-	for(;;) 
+	while(1) 
 	{ 
 		vcap.read(img); 
 		cvtColor(img, img, CV_BGR2RGB);
-		sem_post(&recv_sync);
-		
-        } 		
+		sem_post(&recv_sync);	
+	} 		
 }
 
 void*img_handler(void*arg)
@@ -149,28 +144,23 @@ void*img_handler(void*arg)
 	image_scanner_type scanner_tl;
 	image_scanner_type scanner_ts;
 
-	dlib::rectangle tlight_r, tsign_r;
 	dlib::object_detector<image_scanner_type> detector_tlight;
 	dlib::object_detector<image_scanner_type> detector_tsign;
 	dlib::matrix <dlib::bgr_pixel>cimg;
 		
+	vector<dlib::rectangle> dets_tlight;
+	vector<dlib::rectangle> dets_tsign;
+
+	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
+	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
+
 	while(1)
 	{
 	
 		sem_wait(&recv_sync);
-		clock_t timey=clock();
-		char tl_msg[50];
-		char ts_msg[50];
 
-		vector<dlib::rectangle> dets_tlight;
-		dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
-		vector<dlib::rectangle> dets_tsign;
-		dlib::deserialize("tsign_detector.svm") >> detector_tsign;
-
-		clock_t timep=clock();
 		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
 		dlib::pyramid_up(cimg);	
-		cout<<"processing time: "<<clock()-timep<<endl;
 
 		scanner_tl.set_detection_window_size(80, 170); 
 		scanner_ts.set_detection_window_size(80, 80); 
@@ -178,21 +168,17 @@ void*img_handler(void*arg)
 		scanner_ts.set_max_pyramid_levels(1); 
 		
 		detect_color = tlight_msg_handler(img, tl_msg);
-		//tsign_msg_handler(img,ts_msg);
 
-		if( detect_color )
+		if(detect_color)
 		{	
 
 			dets_tlight = detector_tlight(cimg);
 	
 			if(dets_tlight.size())
 			{
-				printf("detected\n");
-				
+				cout<<"detected traffic light RED"<<endl;
 				red_sign_on  = 2;
 			}
-			cout<<"dlib time : "<<clock()-timey<<endl;
-
 
 			detect_color = 0;
 		}
@@ -202,83 +188,67 @@ void*img_handler(void*arg)
 		if(dets_tsign.size())
 		{
 			cout<<"deteced child"<<endl;
-			child_sign_on=1;
+			int ret = system("mpg123 child_sign_voice.mp3");
+			child_sign_on = 1;
 		}
 
 		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
 
 
-		if(send(connSock, &buf, sizeof(buf), 0) < 0 ) 
+		if(send(connSock, &buf, sizeof(buf), 0) < 0) 
 		{
 			perror("send to traffic server failed");
 		}
 
 		red_sign_on = 0;
 		child_sign_on = 0;
-
-		
-
-
-		
-		/*if(dets_tlight.size())
-		{
-			 Point2f mx1, mx2; 
-			mxdets_tlight[0].tl_corner();
-			//cout<<"left right top bottom "<<dets_tlight[0].left()<<' '<<dets_tlight[0].right()<<' '<<dets_tlight[0].top()<<' '<<dets_tlight[0].bottom()<<endl;
-			//rectangle( img, cv::Point2f(dets_tlight[0].left(), dets_tlight[0].top() ), cv::Point2f(), cv::Scalar( 255, 0, 0 ),3 );
-		}*/
 			
 		cvtColor(img, img_show, CV_RGB2BGR);
-		pyrUp( img_show, img_show, Size( img.cols*2, img.rows*2 ) );
-      		imshow("Output Window", img_show); 
+		pyrUp(img_show, img_show, Size(img.cols*2, img.rows*2));
+      	imshow("Output Window", img_show); 
 		waitKey(1);
 	}
 
 }
 
-
 void create_msg_box(std::vector<dlib::rectangle> &dets, dlib::rectangle &r)
 {
-
-
-
 	if(dets.size())
 	{
 		if(dets[0].left() > 0)
-			r.left()=dets[0].left();
+			r.left() = dets[0].left();
 		else
-			r.left()=0;
-		r.bottom()=dets[0].bottom();
-		r.right()=dets[0].right();
+			r.left() = 0;
+		r.bottom() = dets[0].bottom();
+		r.right() = dets[0].right();
 		if(dets[0].top() > 0)
-			r.top()=dets[0].top();
+			r.top() = dets[0].top();
 		else
-			r.top()=0;
+			r.top() = 0;
 	}
-
 }
-
 
 int tlight_msg_handler(Mat &img, char*distance_msg)
 {
-	int i= 0;
+	int i = 0;
 	int red_positive;
 		
 	red_positive = hsv_handler(img);
 
-	if(red_positive%2!=0)
+	if(red_positive%2 != 0)
 	{
-		printf("\nred\n\n");
-		cout<<"Stop"<<' '<<i<<endl;
+		cout<<endl;
+		cout<<"redsign == Stop"<<' '<<i<<endl;
+		cout<<endl;
 		i++;
-
 		return 2;
 	}
 	else
 	{
-		printf("\ngreen\n\n");
+		cout<<endl;
+		cout<<"no red sign == Go"<<endl;
 		if(red_positive)
-		return 2;
+			return 1;
 	}
 
 	return 0;
@@ -288,7 +258,7 @@ int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
 {
 	
 	float distance;
-	int i= 0;
+	int i = 0;
 	int red_positive;
 		
 	if(dets)
@@ -309,22 +279,11 @@ int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
 	return 0;
 }
 
-
-float dist_detect_tl(dlib::rectangle &r)
+float dist_detect(dlib::rectangle &r)
 {
 	//float v = (r.bottom() - r.top())/2+r.top();
 	float v = (r.right() - r.left())<<2;
-	float distance = 14/tan ( (-3.1) + atan( (v- 119.8) / 332.3 ) );
-	cout<< "distance = "<<distance<<"cm"<<endl;
-	
-	return distance;
-}
-
-float dist_detect_ts(dlib::rectangle &r)
-{
-	//float v = (r.bottom() - r.top())/2+r.top();
-	float v = ((r.right() - r.left())<<2)/3;
-	float distance = 14/tan ( (-3.1) + atan( (v- 119.8) / 332.3 ) );
+	float distance = 14/tan ((-3.1) + atan((v- 119.8) / 332.3));
 	cout<< "distance = "<<distance<<"cm"<<endl;
 	
 	return distance;
@@ -339,9 +298,9 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(green_positive >1)
+	if(green_positive > 1)
 		return 2;
-	else if(red_positive >1)
+	else if(red_positive > 1)
 		return 1;
 	else
 		return 0;
@@ -362,7 +321,7 @@ int red_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 8, CV_32S);  
 
-	printf("detected reds : %d\n",numOfLables-1);
+	cout<<"detected reds : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
@@ -382,7 +341,7 @@ int green_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 4, CV_32S);  
 
-	printf("detected greens : %d\n",numOfLables-1);
+	cout<<"detected greens : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
