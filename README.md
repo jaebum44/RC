@@ -26,6 +26,10 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Network](#network)
 
 - [Device Driver](#device-driver)
+
+- [Pamphlet](#Pamphlet)
+
+- [Technical Documents](#Technical-Documents)
  
 
 ## Introduction
@@ -266,3 +270,10 @@ dlib::deserialize("my.svm") >> detector;
 
 ## Device Driver
 
+### Pamphlet
+
+[Pamphlet Link](https://drive.google.com/open?id=1KuFQBu_XikwNj9xyrJeg_TZSzeJaURqCUPGPt4dl_KE)
+
+### Technical Documents
+
+[Technical Documents Link](https://drive.google.com/open?id=1SAMJvG4fDF1j2NfefLMJtG-V02giVsXoucURc1XlARs)
