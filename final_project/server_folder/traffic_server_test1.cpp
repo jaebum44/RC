@@ -47,6 +47,7 @@ typedef struct shared_data{
 int netlink_F( void );
 int print_F( int argc, char** argv );
 
+void*recv_msg(void*);
 void*netlink_thread(void*);
 void*netlink_shared_mem_thread(void*);
 void*print_shared_mem_thread(void*);
@@ -318,7 +319,7 @@ int print_F(int argc, char **argv)
 {
 	int i=0;
 	int len;
-	int thr_id[2];
+	int thr_id[3];
 	int status;
 	int listenSock;
 
@@ -369,13 +370,14 @@ int print_F(int argc, char **argv)
 
 		thr_id[0] = pthread_create(&print_pid[0], NULL, display, (void*)&connSock);		
 		thr_id[1] = pthread_create(&print_pid[1], NULL, print_shared_mem_thread, NULL);
+		thr_id[2] = pthread_create(&print_pid[1], NULL, recv_msg, (void*)&connSock);
 		
 	}
 
 
 	pthread_join(print_pid[0], (void**)&status);
 	pthread_join(print_pid[1], (void**)&status);
-
+	pthread_join(print_pid[2], (void**)&status);
 
 	//close(listenSock);
 	//close(connSock);
@@ -389,7 +391,7 @@ void*display(void*arg)
 	Mat img;
 	Mat imgGray;
 
-	img = Mat::zeros(120 ,300, CV_8UC3);  
+	img = Mat::zeros(240 ,320, CV_8UC3);  
 	int imgSize = img.total() * img.elemSize();
 	int i=0;
 
@@ -399,8 +401,8 @@ void*display(void*arg)
 
 
 	 
-		cap.set(CAP_PROP_FRAME_WIDTH, 300);
-		cap.set(CAP_PROP_FRAME_HEIGHT,120);
+		cap.set(CAP_PROP_FRAME_WIDTH, 320);
+		cap.set(CAP_PROP_FRAME_HEIGHT,240);
 
 		cap>>img;
 		
@@ -423,18 +425,22 @@ void*display(void*arg)
 		{
 			cerr<<"bytes send failed = "<<bytes<<endl;
 		}
-			
+	}
+}	
+void*recv_msg(void*arg)
+{
+	int connSock=*(int*)arg;
+		
+	while(1)
+	{
 		if(recv(connSock, &traffic_sign, sizeof(int), MSG_WAITALL) < 0) 
 		{
 			perror("traffic_sign receive fail");
 		}
-
-		
 	}
 
-
-
 }
+
 
 
 void*print_shared_mem_thread(void*arg)

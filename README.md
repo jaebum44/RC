@@ -7,8 +7,8 @@ Note: this repository was created for the final project of bit IoT embedded syst
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
 | dlib | device driver | device driver | dlib |
-| network | git management | hardware | network |
-| schedule management |  |  | hardware |
+| network | git management | network | network |
+| schedule management | Make document |  | hardware |
 
 ## Table of content
 
@@ -26,21 +26,25 @@ Note: this repository was created for the final project of bit IoT embedded syst
 - [Network](#network)
 
 - [Device Driver](#device-driver)
+
+- [Documents](#documents)
+    - [Pamphlet](#pamphlet)
+    - [Technical Documents](#technical-documents)
  
 
 ## Introduction
 
 ### Development Environment
 
-![bd](./img/de.jpg)
+![bd](./img/d_en.jpg)
 
 ### Project Software Layer
 
-![bd](./img/ps.jpg)
+![bd](./img/p_sl.jpg)
 
 ### Technical Diagram
 
-![bd](./img/td.jpg)
+![bd](./img/t_dg.jpg)
 
 ### Block Diagram
 
@@ -48,7 +52,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Flow Chart
 
-![fc](./img/flow_chart.jpg)
+![fc](./img/f_ch.jpg)
 
 ## OpenCV
 
@@ -207,19 +211,19 @@ dlib/tools/imglab/build/imglab testing.xml
 
 ![bd](./img/sample8.jpg)
 
-**Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
+**Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access these parameters in your training code like this below. 
 
 ``` 
 scanner.set_detection_window_size(80, 80);  
 ``` 
 
-**Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like below before running the trainer.
+**Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like this below before running the trainer.
 
 ```
 remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
 ```
 
-**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from <arg1> into <arg2>. If any of the image tags are in both files then the ones in <arg2> are deleted and replaced with the image tags from <arg1>. The results are saved into merged.xml and neither <arg1> or <arg2> files are modified. Use -h option for more details.  
+**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from arg1 into arg2. If any of the image tags are in both files then the ones in arg2 are deleted and replaced with the image tags from arg1. The results are saved into merged.xml and neither arg1 or arg2 files are modified. Use -h option for more details.  
 
 ```
 ./imglab --add <arg1> <arg2>
@@ -228,7 +232,7 @@ remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
         
 ### Train the fHOG_object_detector
 
-To train a fHOG_object_detector, run `fhog_object_detector_ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
+To train a fHOG_object_detector, run `fhog_object_detector_ex` For example, run the detector on the `/path/to/your/dir/image` folder with your XML datasets.  
 
 ```
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
@@ -249,14 +253,12 @@ The detector will show test images with marks on and your results will be saved 
 
 ```
 cd dlib/example/
-cp fhog_object_detector_ex.cpp my_fhog_object_detector.cpp
 g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg my_fhog_object_detector.cpp -o my_fhog_ex `pkg-config --cflags --libs opencv` -DUSE_SSE2_INSTRUCTIONS=ON -DUSE_AVX_INSTRUCTIONS=ON -DUSE_SSE4_INSTRUCTIONS=ON
 ```
 
-2. How to recall detector.svm in your training code:
+2. How to recall my.svm in your project:
 
 ```
-dlib::object_detector<image_scanner_type> detector;
 dlib::deserialize("my.svm") >> detector;
 ```
 
@@ -268,3 +270,12 @@ dlib::deserialize("my.svm") >> detector;
 
 ## Device Driver
 
+## Documents
+
+### Pamphlet
+
+[Pamphlet Link](https://drive.google.com/open?id=1v3_OzD26TFsW7j_mBTF3jxN-eDv3kL0QDBOBjPaCueM)
+
+### Technical Documents
+
+[Technical Documents Link](https://drive.google.com/open?id=1SAMJvG4fDF1j2NfefLMJtG-V02giVsXoucURc1XlARs)
