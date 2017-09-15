@@ -27,9 +27,9 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 - [Device Driver](#device-driver)
 
-- [Pamphlet](#Pamphlet)
+- [Pamphlet](#pamphlet)
 
-- [Technical Documents](#Technical-Documents)
+- [Technical Documents](#technical-Documents)
  
 
 ## Introduction
