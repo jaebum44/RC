@@ -6,42 +6,45 @@ Note: this repository was created for the final project of bit IoT embedded syst
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
 | OpenCV | OpenCV | OpenCV | OpenCV |
-| dlib | dlib | device driver | dlib |
-| dlib | dlib | device driver | dlib |
-
+| dlib | device driver | device driver | dlib |
+| network | git management | network | network |
+| schedule management | Make document |  | hardware |
 
 ## Table of content
 
 - [Introduction](#introduction)
     - [Development Environment](#development-environment)
+    - [Project Software Layer](#project-software-layer)
+    - [Technical Diagram](#technical-diagram)
     - [Block Diagram](#block-diagram)
     - [Flow Chart](#flow-chart)
     
-- [Computer Vision](#computer-vision)
-    - [OpenCV](#openCV)
-    - [dlib](#dlib)
-        
+- [OpenCV](#opencv)
+
+- [Machine Learning](#machine-learning)
+
+- [Network](#network)
+
 - [Device Driver](#device-driver)
-    - [Upload the page tree file](#upload-the-page-tree-file)
-    - [Go to the import view](#go-to-the-import-view)
-    - [Import the uploaded page tree file](#import-the-uploaded-page-tree-file)
 
-- [](#license)
-
-- [Links](#links)
+- [Documents](#documents)
+    - [Pamphlet](#pamphlet)
+    - [Technical Documents](#technical-Documents)
+ 
 
 ## Introduction
 
 ### Development Environment
 
-line detection
-* Log into the TYPO3 back end
-* Click on ''Admin Tools::Extension Manager'' in the left navigation
-* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
-* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+![bd](./img/d_en.jpg)
 
-**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
-<https://github.com/opencv/opencv>
+### Project Software Layer
+
+![bd](./img/p_sl.jpg)
+
+### Technical Diagram
+
+![bd](./img/t_dg.jpg)
 
 ### Block Diagram
 
@@ -49,14 +52,16 @@ line detection
 
 ### Flow Chart
 
-![fc](./img/flow_chart.jpg)
+![fc](./img/f_ch.jpg)
 
 ## OpenCV
 
 ### Install
 
+1. Install Packages 
+
 ```
-sudo apt-get install build-essential cmake |\
+sudo apt-get install build-essential cmake |\ 
 sudo apt-get install pkg-config |\
 sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev |\
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev |\
@@ -66,6 +71,11 @@ sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev |\
 sudo apt-get install libqt4-dev |\
 sudo apt-get install mesa-utils libgl1-mesa-dri libqt4-opengl-dev |\
 sudo apt-get install libatlas-base-dev gfortran libeigen3-dev |\
+```
+
+2. Download OpenCV
+
+```
 mkdir opencv |\
 cd opencv |\
 git clone https://github.com/Itseez/opencv/archive/3.2.0.zip |\
@@ -75,6 +85,8 @@ unzip opencv_contrib.zip |\
 ```
 
 ### Build 
+
+1. Build settings
 
 ```
 cd opencv-3.2.0 |\
@@ -106,10 +118,18 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 ../
 ```
 
-If there's no installation issues, you will see these messages below.  
+If there's no issues, you will see these messages below.  
 
 ![fc](./img/pasted.jpg)
 
+2. Compling
+
+Use parallel compling by -j option of make. Check out your cpu information with the statement like below. 
+
+```
+cat /proc/cpuinfo | grep processor | wc -l
+```
+Then determine the number of cores that you want to allocate for compiling
 ```
 time make -j4
 sudo make install
@@ -134,9 +154,9 @@ You can check the version of OpenCV you've installed using the statement like be
 pkg-config --modversion openc
 ```
 
-## dlib
+## Machine Learning
 
-We've trained our own traffic sign detector using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
+We've trained our own traffic sign + traffic light detectors using dlib and its implementation of the Felzenszwalb's version of the Histogram of Oriented Gradients (HoG) detector. The training examples used in this repository are from Korean road signs, but the classifier should work with any traffic signs, as long as you train it properly. We used Naver Map images, several captures from webcam and etc. Just note that there are methods with better results than HoG for traffic sign detector, such as Deep Learning architectures. 
 
 ### Install
 
@@ -191,19 +211,19 @@ dlib/tools/imglab/build/imglab testing.xml
 
 ![bd](./img/sample8.jpg)
 
-**Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access those parameters in your training code like this below. 
+**Note:** If you want to use different aspect ratios, then make all your truth boxes have the same or nearly the same aspect ratio. You can access these parameters in your training code like this below. 
 
 ``` 
 scanner.set_detection_window_size(80, 80);  
 ``` 
 
-**Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like below before running the trainer.
+**Note:** Your training code will throw an exception if it detects any boxes that are impossible to detect given your setting of scanning window size and image pyramid resolution. If you want to discard these impossible boxes automatically from your training data, then use a statement like this below before running the trainer.
 
 ```
 remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);   
 ```
 
-**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from <arg1> into <arg2>. If any of the image tags are in both files then the ones in <arg2> are deleted and replaced with the image tags from <arg1>. The results are saved into merged.xml and neither <arg1> or <arg2> files are modified. Use -h option for more details.  
+**Note:**  To add more image metadata to your XML datasets, use this statement like this below. It will add the image metadata from arg1 into arg2. If any of the image tags are in both files then the ones in arg2 are deleted and replaced with the image tags from arg1. The results are saved into merged.xml and neither arg1 or arg2 files are modified. Use -h option for more details.  
 
 ```
 ./imglab --add <arg1> <arg2>
@@ -212,7 +232,7 @@ remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
         
 ### Train the fHOG_object_detector
 
-To train a fHOG_object_detector, run `fhog_object_detector_ex`. For example, to run the detector on the `/dir/image` folder with your XML datasets.  
+To train a fHOG_object_detector, run `fhog_object_detector_ex` For example, run the detector on the `/path/to/your/dir/image` folder with your XML datasets.  
 
 ```
 dlib/example/build/fhog_object_detector_ex /path/to/dir/image
@@ -233,14 +253,12 @@ The detector will show test images with marks on and your results will be saved 
 
 ```
 cd dlib/example/
-cp fhog_object_detector_ex.cpp my_fhog_object_detector.cpp
 g++ -std=c++11 -O3 -I.. ../dlib/all/source.cpp -lpthread -lX11 -DDLIB_JPEG_SUPPORT -ljpeg my_fhog_object_detector.cpp -o my_fhog_ex `pkg-config --cflags --libs opencv` -DUSE_SSE2_INSTRUCTIONS=ON -DUSE_AVX_INSTRUCTIONS=ON -DUSE_SSE4_INSTRUCTIONS=ON
 ```
 
-2. How to recall detector.svm in your training code:
+2. How to recall my.svm in your project:
 
 ```
-dlib::object_detector<image_scanner_type> detector;
 dlib::deserialize("my.svm") >> detector;
 ```
 
@@ -248,29 +266,16 @@ dlib::deserialize("my.svm") >> detector;
 
 **Note:**  To compile using `cmake` in dir/build, make your own customized CMakeLists.txt 
 
-## motor control
+## Network
 
+## Device Driver
 
-## device driver
+## Documents
 
+### Pamphlet
 
-## TCP/IP network
+[Pamphlet Link](https://drive.google.com/open?id=1KuFQBu_XikwNj9xyrJeg_TZSzeJaURqCUPGPt4dl_KE)
 
-line detection
-* Log into the TYPO3 back end
-* Click on ''Admin Tools::Extension Manager'' in the left navigation
-* Click the icon with the little plus sign left from the Aimeos list entry (looks like a lego brick)
-* If a pop-up opens (only TYPO3 4.x) choose ''Make updates'' and "Close window" after the installation is done
+### Technical Documents
 
-**Caution:** Install the **RealURL extension before the Aimeos extension** to get nice looking URLs. Otherwise, RealURL doesn't rewrite the parameters even if you install RealURL afterwards!
-<https://github.com/opencv/opencv>
-
-
-## schedule management
-
-project planning of team
-
-write journal
-
-<https://drive.google.com/open?id=181hj2BIQw41JlRvIvNAiyvcg5SGY2thXSMtJz_hX9zQ>
-
+[Technical Documents Link](https://drive.google.com/open?id=1SAMJvG4fDF1j2NfefLMJtG-V02giVsXoucURc1XlARs)
