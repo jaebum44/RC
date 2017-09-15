@@ -270,6 +270,8 @@ dlib::deserialize("my.svm") >> detector;
 
 ## Device Driver
 
+## Documents
+
 ### Pamphlet
 
 [Pamphlet Link](https://drive.google.com/open?id=1KuFQBu_XikwNj9xyrJeg_TZSzeJaURqCUPGPt4dl_KE)
