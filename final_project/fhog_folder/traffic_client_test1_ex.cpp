@@ -146,7 +146,7 @@ void*img_handler(void*arg)
 		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
 		dlib::pyramid_up(cimg);	
 
-		scanner.set_detection_window_size(40, 40); 
+		scanner.set_detection_window_size(80, 80); 
 		
 		dlib::deserialize("tlight_detector.svm") >> detector_tlight;
 		dlib::deserialize("tsign_detector.svm") >> detector_tsign;
@@ -154,8 +154,8 @@ void*img_handler(void*arg)
 		vector<dlib::rectangle> dets_tlight = detector_tlight(cimg);
 		vector<dlib::rectangle> dets_tsign = detector_tsign(cimg);
 
-		create_msg_box(dets_tlight, tlight_r);
-		create_msg_box(dets_tsign, tsign_r);
+		//create_msg_box(dets_tlight, tlight_r);
+		//create_msg_box(dets_tsign, tsign_r);
 
 	
 		tlight_msg_handler(img, dets_tlight.size(), connSock, tlight_r, tl_msg);
@@ -173,17 +173,17 @@ void*img_handler(void*arg)
 		win.add_overlay(dets_tlight, dlib::rgb_pixel(255,255,255));
 		win.add_overlay(dets_tsign, dlib::rgb_pixel(255,255,255));
 	
-		if(dets_tlight.size())
-		{
-			tlight_r.bottom()=tlight_r.top()-1;
-			win.add_overlay(tlight_r, dlib::rgb_pixel(255,255,255),tl_msg);	
-		}		
+		//if(dets_tlight.size())
+		//{
+		//	tlight_r.bottom()=tlight_r.top()-1;
+		//	win.add_overlay(tlight_r, dlib::rgb_pixel(255,255,255),tl_msg);	
+		//}		
 		
-		if(dets_tsign.size())
-		{
-			tsign_r.bottom()=tsign_r.top()-1;
-			win.add_overlay(tsign_r, dlib::rgb_pixel(255,255,255),ts_msg);	
-		}
+		//if(dets_tsign.size())
+		//{
+		//	tsign_r.bottom()=tsign_r.top()-1;
+		//	win.add_overlay(tsign_r, dlib::rgb_pixel(255,255,255),ts_msg);	
+		//}
 		
 		
 	}

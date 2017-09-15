@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <semaphore.h>
 #include <fcntl.h>
 #include <sys/socket.h> 
 #include <pthread.h>
@@ -29,7 +30,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <time.h>
-#include <semaphore.h>
 
 
 using namespace std;
@@ -41,12 +41,15 @@ namespace HSV_CONST
 	{
 		RED_HL =170, RED_SL =50, RED_VL =142,\
 		RED_HH =179, RED_SH =255, RED_VH =255,\
-		GREEN_HL =38, GREEN_SL =50, GREEN_VL =120,\
+		GREEN_HL =38, GREEN_SL =70, GREEN_VL =70,\
 		GREEN_HH =80, GREEN_SH =255, GREEN_VH =255
 	};
 }
 
-void*gstream_recv(void*);
+Mat img;
+sem_t img_sync;
+
+void*img_recv(void*);
 void*img_handler(void*);
 int tlight_msg_handler(Mat &);
 int tsign_msg_handler(Mat &, int, dlib::rectangle &, char*);
@@ -54,10 +57,9 @@ void create_msg_box(std::vector<dlib::rectangle> &, dlib::rectangle &);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
 int green_detect(Mat &);
-float dist_detect(dlib::rectangle &);
+float dist_detect_tl(dlib::rectangle &);
+float dist_detect_ts(dlib::rectangle &);
 
-Mat img;
-sem_t recv_sync, show_sync;
 int red_sign_on, child_sign_on, buf;
 
 int main(int argc, char** argv)
@@ -70,10 +72,7 @@ int main(int argc, char** argv)
 	int thr_id, status;
 	pthread_t pid[2];
 	int len;
-	
-	img = Mat::zeros(240, 320,CV_8UC3);
 
-	
 	if(argc < 3)
 	{
 		perror("Usage: IP_address Port_num");
@@ -103,7 +102,7 @@ int main(int argc, char** argv)
 
 	printf("Traffic Client connect to Traffic server \n");
 
-	thr_id=pthread_create(&pid[0], NULL,gstream_recv,(void*)&connSock);
+	thr_id=pthread_create(&pid[0], NULL,img_recv,(void*)&connSock);
 	thr_id=pthread_create(&pid[1], NULL,img_handler,(void*)&connSock);
 
 	pthread_join(pid[0], (void**)&status);
@@ -114,12 +113,11 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void*gstream_recv(void*arg)
+void*img_recv(void*arg)
 {
-
 	VideoCapture vcap; 
  
-	string videoStreamAddress = "rtsp://192.168.1.33:8554/test";	
+	string videoStreamAddress = "rtsp://192.168.0.7:8554/test";	
 	
 	vcap.open(videoStreamAddress);
 
@@ -127,18 +125,17 @@ void*gstream_recv(void*arg)
 	{ 
 		vcap.read(img); 
 		cvtColor(img, img, CV_BGR2RGB);
-		sem_post(&recv_sync);	
-	} 		
+	}	sem_post(&img_sync);
+	
 }
 
 void*img_handler(void*arg)
 {
-
 	Mat img_show;
 
 	int connSock=*(int*)arg;
 	int detect_color = 0;
-	
+
 	typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6> > image_scanner_type; 
 	
 	image_scanner_type scanner_tl;
@@ -147,21 +144,21 @@ void*img_handler(void*arg)
 	dlib::object_detector<image_scanner_type> detector_tlight;
 	dlib::object_detector<image_scanner_type> detector_tsign;
 	dlib::matrix <dlib::bgr_pixel>cimg;
-		
+
 	vector<dlib::rectangle> dets_tlight;
 	vector<dlib::rectangle> dets_tsign;
 
 	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
 	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
-
+	
 	while(1)
 	{
-	
-		sem_wait(&recv_sync);
 
+		sem_wait(&img_sync);	
+	
 		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
 		dlib::pyramid_up(cimg);	
-
+		
 		scanner_tl.set_detection_window_size(80, 170); 
 		scanner_ts.set_detection_window_size(80, 80); 
 		scanner_tl.set_max_pyramid_levels(1);	
@@ -173,7 +170,7 @@ void*img_handler(void*arg)
 		{	
 
 			dets_tlight = detector_tlight(cimg);
-	
+
 			if(dets_tlight.size())
 			{
 				cout<<"detected traffic light RED"<<endl;
@@ -205,27 +202,27 @@ void*img_handler(void*arg)
 			
 		cvtColor(img, img_show, CV_RGB2BGR);
 		pyrUp(img_show, img_show, Size(img.cols*2, img.rows*2));
-      	imshow("Output Window", img_show); 
+		imshow("Output Window", img_show); 
 		waitKey(1);
 	}
 
 }
 
+
 void create_msg_box(std::vector<dlib::rectangle> &dets, dlib::rectangle &r)
 {
+
 	if(dets.size())
 	{
-		if(dets[0].left() > 0)
-			r.left() = dets[0].left();
-		else
-			r.left() = 0;
-		r.bottom() = dets[0].bottom();
-		r.right() = dets[0].right();
+		r.left()=dets[0].left();
+		r.bottom()=dets[0].bottom();
+		r.right()=dets[0].right();
 		if(dets[0].top() > 0)
-			r.top() = dets[0].top();
+			r.top()=dets[0].top();
 		else
-			r.top() = 0;
+			r.top()=0;
 	}
+
 }
 
 int tlight_msg_handler(Mat &img)
@@ -254,16 +251,17 @@ int tlight_msg_handler(Mat &img)
 	return 0;
 }
 
-int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
+
+int tsign_msg_handler(Mat &img, int dets, int connSock, dlib::rectangle &r, char*distance_msg)
 {
 	
 	float distance;
-	int i = 0;
+	int i= 0;
 	int red_positive;
 		
 	if(dets)
 	{
-		distance=dist_detect(r);
+		distance=dist_detect_ts(r);
 		sprintf(distance_msg,"  DISTANCE : %.2fCM\n",distance);
 		
 		if(distance < 20)
@@ -279,11 +277,22 @@ int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
 	return 0;
 }
 
-float dist_detect(dlib::rectangle &r)
+
+float dist_detect_tl(dlib::rectangle &r)
 {
 	//float v = (r.bottom() - r.top())/2+r.top();
 	float v = (r.right() - r.left())<<2;
-	float distance = 14/tan ((-3.1) + atan((v- 119.8) / 332.3));
+	float distance = 14/tan ( (-3.1) + atan( (v- 119.8) / 332.3 ) );
+	cout<< "distance = "<<distance<<"cm"<<endl;
+	
+	return distance;
+}
+
+float dist_detect_ts(dlib::rectangle &r)
+{
+	//float v = (r.bottom() - r.top())/2+r.top();
+	float v = ((r.right() - r.left())<<2)/3;
+	float distance = 14/tan ( (-3.1) + atan( (v- 119.8) / 332.3 ) );
 	cout<< "distance = "<<distance<<"cm"<<endl;
 	
 	return distance;
@@ -306,6 +315,7 @@ int hsv_handler(Mat &img)
 		return 0;
 }
 
+
 int red_detect(Mat &img_for_detect)
 {
 	Mat img_binary, img_hsv;
@@ -321,7 +331,7 @@ int red_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 8, CV_32S);  
 
-	cout<<"detected reds : "<<numOfLables-1<<endl;
+	printf("detected reds : %d\n",numOfLables-1);
 
 	return numOfLables;
 }
@@ -341,7 +351,7 @@ int green_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 4, CV_32S);  
 
-	cout<<"detected greens : "<<numOfLables-1<<endl;
+	printf("detected greens : %d\n",numOfLables-1);
 
 	return numOfLables;
 }
