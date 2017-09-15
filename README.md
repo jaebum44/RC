@@ -29,7 +29,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 - [Documents](#documents)
     - [Pamphlet](#pamphlet)
-    - [Technical Documents](#technical-Documents)
+    - [Technical Documents](#technical-documents)
  
 
 ## Introduction
