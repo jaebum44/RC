@@ -29,7 +29,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 - [Documents](#documents)
     - [Pamphlet](#pamphlet)
-    - [Technical Documents](#technical-Documents)
+    - [Technical Documents](#technical-documents)
  
 
 ## Introduction
@@ -274,7 +274,7 @@ dlib::deserialize("my.svm") >> detector;
 
 ### Pamphlet
 
-[Pamphlet Link](https://drive.google.com/open?id=1KuFQBu_XikwNj9xyrJeg_TZSzeJaURqCUPGPt4dl_KE)
+[Pamphlet Link](https://drive.google.com/open?id=1v3_OzD26TFsW7j_mBTF3jxN-eDv3kL0QDBOBjPaCueM)
 
 ### Technical Documents
 
