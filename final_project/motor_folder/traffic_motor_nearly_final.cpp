@@ -59,6 +59,7 @@ using namespace std;
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
 // 재범i2c코드반영해야됨
+// 전역변수 class private로 바꾸기
 
 int motor_ctrl(float, float, int);
 void*servo_control(void*);
