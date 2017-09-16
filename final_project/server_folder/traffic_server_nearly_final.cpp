@@ -17,14 +17,14 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <pthread.h>
-
 #include <errno.h>
-
 
 #include "shmhdr.h"
 #include "ioctl_mydrv.h"
-
 #include <wiringPi.h>
+
+//주석 정리
+//매크로 정리 좀..
 
 #define NETLINK_USER 31
 #define MAX_PAYLOAD 1024  /* maximum payload size*/
