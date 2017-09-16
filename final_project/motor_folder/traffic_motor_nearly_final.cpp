@@ -58,16 +58,18 @@ using namespace std;
 
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
+// 재범i2c코드반영해야됨
 
-int motor_ctrl(float sl_servo,float sl_min, int cols);
-void*servo_control(void*arg);
-void*web_opencv(void*arg);
-void*wheel_a(void*arg);
+int motor_ctrl(float, float, int);
+void*servo_control(void*);
+void*web_opencv(void*);
+void*wheel_a(void*);
 void init_motor(void);
 
 int servo;
 int dc_motor;
-int DC[ 2 ][ 4 ] = {
+int DC[ 2 ][ 4 ] = \
+{
 	SP_FAST, SP_SLOW,      SP_STOP, SP_SLOW_STOP,
 	SP_STOP, SP_SLOW_STOP, SP_STOP, SP_SLOW_STOP
 };
@@ -122,7 +124,6 @@ init_motor()
 		pinMode(in2, OUTPUT);
 		pinMode(in3, OUTPUT);
 		pinMode(in4, OUTPUT);
-
 		pca9685PWMReset(fd);
 }
 
