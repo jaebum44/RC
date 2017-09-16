@@ -31,7 +31,6 @@
 #include <time.h>
 #include <semaphore.h>
 
-
 using namespace std;
 using namespace cv;
 
@@ -55,6 +54,10 @@ int hsv_handler(Mat &);
 int red_detect(Mat &);
 int green_detect(Mat &);
 float dist_detect(dlib::rectangle &);
+
+// 전역변수 class private로 바꾸기
+// 함수 깔끔하게 정리
+
 
 Mat img;
 sem_t recv_sync, show_sync;
