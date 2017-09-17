@@ -1,7 +1,7 @@
 Bit Autonomous RC Car Project 
 ======================
 
-Note: this repository was created for the final project of bit IoT embedded system developer course and won't receive any major updates. Still, you can use this repository as a study reference or for some practical purposes.
+Note: this repository is created for the final project of bit IoT embedded system developer course and won't receive any major updates after completion. We are still in progrss though you can use this repository as a study reference or for some practical purposes.
 
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
