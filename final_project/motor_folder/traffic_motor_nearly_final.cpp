@@ -60,6 +60,7 @@ using namespace std;
 
 // 재범i2c코드반영해야됨
 // 전역변수 class private로 바꾸기
+// 함수 정리
 
 int motor_ctrl(float, float, int);
 void*servo_control(void*);
