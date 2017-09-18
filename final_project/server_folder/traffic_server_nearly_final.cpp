@@ -6,53 +6,46 @@
 #include <fcntl.h>
 #include <linux/netlink.h>
 #include <signal.h>
-
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/shm.h>
 #include <sys/socket.h>
-
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <errno.h>
 
+#include <wiringPi.h>
 #include "shmhdr.h"
 #include "ioctl_mydrv.h"
-#include <wiringPi.h>
-
-//주석 정리
-//매크로 정리 좀..
 
 #define NETLINK_USER 31
-#define MAX_PAYLOAD 1024  /* maximum payload size*/
+#define MAX_PAYLOAD 1024  
 #define MSG_EXCEPT 020000
 #define PATH "/dev/sensor"
-#define PORT 9000
 
 #define SEND_PACK1 24
 #define SEND_PACK2 25
 
 using namespace std;
-//using namespace cv;
 
-typedef struct shared_data{
+typedef struct shared_data
+{
 	int ultra_sonic_value;
 	int traffic_sign_value;
+
 }shard_data;
 
-int netlink_F( void );
-int print_F( int argc, char** argv );
-
-void*netlink_thread(void*);
-void*netlink_shared_mem_thread(void*);
-void*print_shared_mem_thread(void*);
-void*display(void*);
-void*send_pack(void*);
-
-void calc_vals( void );
+int   netlink_F(void);
+int   print_F(int,char**);
+void* netlink_thread(void*);
+void* netlink_shared_mem_thread(void*);
+void* print_shared_mem_thread(void*);
+void* display(void*);
+void* send_pack(void*);
+void  calc_vals(void );
 
 struct sockaddr_nl src_addr, dest_addr;
 struct nlmsghdr *nlh = NULL;
@@ -60,21 +53,19 @@ struct iovec iov;
 struct msghdr msg;
 
 int sock_fd;
-pthread_t netlink_pid[2];
-
-int connSock; 
-pthread_t print_pid[2];
 int traffic_sign;
-int pack_idx = 0;
+int pack_idx;
+int connSock; 
+pthread_t netlink_pid[2];
+pthread_t print_pid[2];
 
 int*dist;
 int shmid;
 int *shdata;
 void *data_shm;
-
 shard_data car_ctl_T;
 
-void calc_vals( void )
+void calc_vals(void)
 {
 	int a;
 
@@ -82,10 +73,6 @@ void calc_vals( void )
 
 	pinMode( SEND_PACK1, OUTPUT );
 	pinMode( SEND_PACK2, OUTPUT );
-	
-	// sonic == 1;	stop
-	// sign == 1;	slow
-	// else;	fast
 
 	digitalWrite( SEND_PACK1, car_ctl_T.ultra_sonic_value | ( car_ctl_T.traffic_sign_value >> 1 ) );
 	digitalWrite( SEND_PACK2, car_ctl_T.traffic_sign_value & 1 );
@@ -94,41 +81,44 @@ void calc_vals( void )
 	usleep( 10000 );
 }
 
-void* send_pack( void* arg )
+void* send_pack(void*arg)
 {
-	while( 1 )
+	while(1)
 	{
 		calc_vals();
 	}
 } 
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-	int		fork_pid, status;
-	key_t	key;
+	int fork_pid, status;
+	key_t key;
 
 	/* make the key: */
-	key = 1234; //ftok("test_mydrv_shm.c", 'R')) == -1) {
+	key = 1234; 
 
 	/* connect to (and possibly create) the segment: */
-	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
-	perror("shmget");
-	exit(1);
+	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1)
+	{
+		perror("shmget");
+		return -1;
 	}
 
 	/* attach to the segment to get a pointer to it: */
 	data_shm = shmat(shmid, (void *)0, 0);
-	if (data_shm == (void *)(-1)) {
-	perror("shmat");
-	exit(1);
+	if (data_shm == (void *)(-1)) 
+	{
+		perror("shmat");
+		return -1;
 	}
+
 	shdata = (int*)data_shm;
 
 	fork_pid = fork();
 
-	if( fork_pid == 0 )
+	if(fork_pid == 0)
 	{
-		print_F( argc, argv ); 
+		print_F(argc, argv); 
 		pause();
 	}
 	else if( fork_pid > 0 )
@@ -138,7 +128,7 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-		perror( "fork error\n" );
+		perror("fork error");
 		return -1;
 	}
 
@@ -149,34 +139,38 @@ int netlink_F()
 {
 	int fd, thr_id, status;
 	struct sockaddr_in s_addr, c_addr;
-	pthread_t	main_thrd;
+	pthread_t main_thrd;
 
 	fd = open(PATH,O_RDWR);	
 
-	pthread_create( &main_thrd, NULL, send_pack, NULL );
+	if(pthread_create(&main_thrd, NULL, send_pack, NULL) < 0)
+	{
+		perror("main_thrd");
+		return -1;
+	}
 
 	if((thr_id=pthread_create(&netlink_pid[0], NULL, netlink_thread, (void*)&fd)) < 0)
 	{
-		perror("xx\n");
+		perror("netth1");
 		return -1;	
 	}
+
 	if((thr_id=pthread_create(&netlink_pid[1], NULL, netlink_shared_mem_thread, (void*)&fd)) < 0)
 	{
-		printf("xx\n");
+		perror("netth2");
 		return -1;	
 	}
 	
 	pthread_join(netlink_pid[0], (void**)&status);// 쓰레드가 끝날 때까지 기다린다면 while문을 돌리는 동안 main문 thread_join에서 걸리게 된다.
 	pthread_join(netlink_pid[1], (void**)&status);//2번째가 NULL 이 아니라면, th의 리턴값이 저장된 영역이 전달되게 된다.
-
-	pthread_join( main_thrd, ( void** )&status );
+	pthread_join(main_thrd, (void**)&status);
 
 	return 0;
 }
 
 // 넷링크 쓰레
 
-void*netlink_thread(void*arg)
+void* netlink_thread(void* arg)
 {
 	int i=0;
 	ioctl_buf *buf_in,*buf_out;	
@@ -190,17 +184,20 @@ void*netlink_thread(void*arg)
 
 	fd = *(int*)arg;
 
-	dist=(int*)malloc(sizeof(int));
+	dist = (int*)malloc(sizeof(int));
 	size = sizeof(ioctl_buf);
 	buf_out = (ioctl_buf*)malloc(size);
-	strcpy(buf_out->data,"0");
+	strcpy(buf_out->data, "0");
 
 	while(1)
 	{	
 		sock_fd=socket(PF_NETLINK, SOCK_RAW, NETLINK_USER);
 		
 		if(sock_fd<0)
-			return NULL;
+		{
+			perror("socket");
+		}
+
 		memset(&src_addr, 0, sizeof(src_addr));
 		src_addr.nl_family = AF_NETLINK;
 		src_addr.nl_pid = getpid();  // self pid 
@@ -221,9 +218,9 @@ void*netlink_thread(void*arg)
 		
 		memcpy(NLMSG_DATA(nlh),dist,sizeof(int));
 		
-		iov.iov_base = (void *)nlh;
+		iov.iov_base = (void*)nlh;
 		iov.iov_len = nlh->nlmsg_len;
-		msg.msg_name = (void *)&dest_addr;
+		msg.msg_name = (void*)&dest_addr;
 		msg.msg_namelen = sizeof(dest_addr);
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
@@ -234,9 +231,9 @@ void*netlink_thread(void*arg)
 		// Read message from kernel 
 
 		recvmsg(sock_fd, &msg, 0);
-	    dist=((int*)NLMSG_DATA(nlh));
-	    *dist -= 10;
-	    printf("Received message payload : %d cm %d\n",*dist,i);
+		dist=((int*)NLMSG_DATA(nlh));
+		*dist -= 10;
+	    	cout<<"Received message payload :"<<*dist<<" cm"<<' '<<i<<endl;
 		i++;
 		
 		if(abs(*dist) < 20)
@@ -250,48 +247,28 @@ void*netlink_thread(void*arg)
 	}
 
 	free(dist);
-     
+	free(buf_out);
 } 
 
 
 //순서는 소켓 -> 넷링크 ->ioctl->넷링크recv->socket send
 
-void*netlink_shared_mem_thread(void*arg)
+void* netlink_shared_mem_thread(void*arg)
 { 
 	int save_distance=0;
 
-//	/* make the key: */
-//	if ((key = 1234) == -1) {//ftok("test_mydrv_shm.c", 'R')) == -1) {
-//	perror("ftok");
-//	exit(1);
-//	}
-//
-//	/* connect to (and possibly create) the segment: */
-//	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
-//	perror("shmget");
-//	exit(1);
-//	}
-//
-//	/* attach to the segment to get a pointer to it: */
-//	data_shm = shmat(shmid, (void *)0, 0);
-//	if (data_shm == (void *)(-1)) {
-//	perror("shmat");
-//	exit(1);
-//	}
-//	shdata = (int*)data_shm;
 	while(1)
 	{
 		traffic_sign = *shdata;
 		car_ctl_T.traffic_sign_value = traffic_sign;
 		usleep(500000);
 	}
-	/* detach from the segment: */
-	if (shmdt(data_shm) == -1) {
-	perror("shmdt");
-	exit(1);
-	}
 
-	return 0;
+	/* detach from the segment: */
+	if (shmdt(data_shm) == -1) 
+	{
+		perror("shmdt");
+	}
 }
 
 
@@ -305,12 +282,6 @@ struct nlmsghdr {
 };
 */
 
-
-
-
-
-//////////////////////////
-
 int print_F(int argc, char **argv) 
 {
 	int i=0;
@@ -323,13 +294,13 @@ int print_F(int argc, char **argv)
 
 	if(argc < 2)
 	{
-		perror("Usage: Server port_num \n");
+		perror("Usage: Server port_num");
 		return -1;
 	}
 
 	if((listenSock=socket(PF_INET, SOCK_STREAM, 0)) < 0) 
 	{
-		perror("Server: Can't open socket\n");
+		perror("Server: Can't open socket");
 		return -1;
 	}
 
@@ -339,26 +310,27 @@ int print_F(int argc, char **argv)
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY); // 서버의 아이디를 그대로 사용함
 	server_addr.sin_port = htons(atoi(argv[1])); // port num
 
-	if(bind(listenSock, (struct sockaddr*) &server_addr, sizeof(server_addr))<0)
+	if(bind(listenSock, (struct sockaddr*) &server_addr, sizeof(server_addr)) < 0)
 	{
-		perror("Server: Can't bind \n");
+		perror("Server: Can't bind");
 		return -1;
 	}
 
 	if(listen(listenSock, 1) < 0) // 1 == backlog == which means the maximum number of delayed connection try allowed to wait in stack.  
 	{
-		perror("Server: Listen failed \n");
+		perror("Server: Listen failed");
 		return -1;
 	}
 
 	len = sizeof(client_addr);
 
 	cout<<"Traffic Server Start!\nIP = "<<htonl(INADDR_ANY)<<" "<<"Port Num = "<<atoi(argv[1])<<endl;
+
 	while(1)
 	{
-		if((connSock = accept(listenSock,(struct sockaddr*)&client_addr,(socklen_t*)&len))<0)
+		if((connSock = accept(listenSock,(struct sockaddr*)&client_addr,(socklen_t*)&len)) < 0)
 		{
-			perror("Server: Failed in accepting \n");
+			perror("Server: Failed in accepting");
 			return -1;
 		}
 		
@@ -366,19 +338,16 @@ int print_F(int argc, char **argv)
 
 		thr_id[0] = pthread_create(&print_pid[0], NULL, display, (void*)&connSock);		
 		thr_id[1] = pthread_create(&print_pid[1], NULL, print_shared_mem_thread, NULL);
-		
 	}
-
 
 	pthread_join(print_pid[0], (void**)&status);
 	pthread_join(print_pid[1], (void**)&status);
-
 
 	//close(listenSock);
 	//close(connSock);
 }
 
-void*display(void*arg)
+void* display(void*arg)
 {
 	int connSock=*(int*)arg;
 
@@ -392,33 +361,10 @@ void*display(void*arg)
 }
 
 
-void*print_shared_mem_thread(void*arg)
+void* print_shared_mem_thread(void*arg)
 {
-//	/* make the key: */
-//	if ((key = 1234) == -1) {
-//	perror("ftok");
-//	exit(1);
-//	}
-//
-//	/* connect to (and possibly create) the segment: */
-//	if ((shmid = shmget(key, sizeof(shard_data), 0644 | IPC_CREAT)) == -1) {
-//	perror("shmget");
-//	exit(1);
-//	}
-//
-//	/* attach to the segment to get a pointer to it: */
-//	data_shm = shmat(shmid, (void *)0, 0);
-//	if (data_shm == (void *)(-1)) {
-//	perror("shmat");
-//	exit(1);
-//	}
-//	shdata = (int*)data_shm;
-
 	while(1) 
 	{
       		*shdata = traffic_sign;
 	}
-
-
-
 }
