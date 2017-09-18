@@ -66,7 +66,7 @@ int motor_ctrl(float, float, int);
 void*servo_control(void*);
 void*web_opencv(void*);
 void*wheel_a(void*);
-void init_motor(void);
+int init_motor(void);
 
 int servo;
 int dc_motor;
@@ -108,7 +108,7 @@ int main()
 	return 0;
 }
 
-init_motor()
+int init_motor()
 {
 		wiringPiSetup();
 
