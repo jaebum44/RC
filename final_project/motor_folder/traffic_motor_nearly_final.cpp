@@ -41,11 +41,11 @@ using namespace std;
 
 #define PARAM_LEFT1 	15>>4
 #define PARAM_LEFT2 	5>>4
-#define PARAM_LEFT3 	10>>4
+#define PARAM_LEFT3 	14>>4
 
 #define PARAM_RIGHT1 	1>>4
 #define PARAM_RIGHT2 	11>>4
-#define PARAM_RIGHT3 	6>>4
+#define PARAM_RIGHT3 	10>>4
 
 
 #define in1		4
@@ -186,7 +186,7 @@ void*web_opencv(void*arg)
 			line(image_rot1,Point(lines[i][0], lines[i][1]),Point(lines[i][2],lines[i][3]),Scalar(255,0,0),2,8);
 		}
 
-		addWeighted(image_rot1, 1.0, image_rot1, 1.0, 0, image_rot1);
+		addWeighted(image_rot1, 0.3, image_rot1, 1.0, 0, image_rot1);
 		line(image_rot1,Point(image_rot1.cols/2,image_rot1.rows),Point(image_rot1.cols/2,image_rot1.rows>>2),Scalar(0,0,0),2,8);
 
 
@@ -230,7 +230,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=220;
+				servo=230;
 				printf("left correction %d\n",dc_motor);
 			}
 
@@ -253,7 +253,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 			}
 			else
 			{
-				servo=260;
+				servo=250;
 				printf("right correction %d\n",dc_motor);
 			}
 			
@@ -263,7 +263,7 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 		{
 			printf("forward\n");
 			servo=240;
-			dc_motor*= 1.2;
+			//dc_motor*= 1.2;
 			sem_post(&servo_sync);
 		}
 	}
