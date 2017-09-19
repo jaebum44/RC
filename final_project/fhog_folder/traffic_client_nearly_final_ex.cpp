@@ -138,7 +138,6 @@ void* img_recv(void*arg)
 	while(1) 
 	{ 
 		vcap.read(img); 
-		cvtColor(img, img, CV_BGR2RGB);
 		sem_post(&recv_sync);	
 	} 		
 }
@@ -176,7 +175,7 @@ void* img_handler_ts(void*arg)
 		sem_wait(&recv_sync);
 
 		pthread_mutex_lock(&I_Mutex);
-		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
+		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
 		pthread_mutex_unlock(&I_Mutex);
 	
 		dlib::pyramid_up(cimg);	
@@ -345,10 +344,10 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(green_positive > 1)
-		return 2;
-	else if(red_positive > 1)
+	if(red_positive > 1)
 		return 1;
+	else if(green_positive > 1)
+		return 2;
 	else
 		return 0;
 }
