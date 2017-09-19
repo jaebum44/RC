@@ -43,7 +43,7 @@ using namespace std;
 #define SP_FAST			1250
 #define SP_SLOW			1100
 #define SP_STOP			0
-#define SP_SLOW_STOP	0
+#define SP_SLOW_STOP		0
 
 #define PARAM_LEFT1 	15>>4
 #define PARAM_LEFT2 	5>>4
@@ -70,10 +70,10 @@ using namespace std;
 #define CHANNEL5_ON_H		0x1B
 #define CHANNEL5_OFF_L		0x1C
 #define CHANNEL5_OFF_H		0x1D
-#define ALL_LED_ON_L 	0xFA
+#define ALL_LED_ON_L 		0xFA
 
 
-#define in1				4
+#define in1			4
 #define in2 			5
 #define in3 			26
 #define in4 			27
