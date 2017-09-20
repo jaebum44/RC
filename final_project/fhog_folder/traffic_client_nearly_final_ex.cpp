@@ -134,11 +134,12 @@ void* img_recv(void*arg)
 	string videoStreamAddress = "rtsp://192.168.1.105:8554/test";	
 	
 	vcap.open(videoStreamAddress);
+	vcap.set(CV_CAP_PROP_CONVERT_RGB,1);
 
 	while(1) 
 	{ 
 		vcap.read(img); 
-		cvtColor(img, img, CV_BGR2RGB);
+//		cvtColor(img, img, CV_RGB2BGR);
 		sem_post(&recv_sync);	
 	} 		
 }
@@ -176,7 +177,7 @@ void* img_handler_ts(void*arg)
 		sem_wait(&recv_sync);
 
 		pthread_mutex_lock(&I_Mutex);
-		dlib::assign_image(cimg,dlib::cv_image<dlib::rgb_pixel>(img));
+		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
 		pthread_mutex_unlock(&I_Mutex);
 	
 		dlib::pyramid_up(cimg);	
@@ -201,9 +202,9 @@ void* img_handler_ts(void*arg)
 
 		child_sign_on = 0;
 			
-		cvtColor(img, img_show, CV_RGB2BGR);
+		//cvtColor(img, img_show, CV_RGB2BGR);
 		//pyrUp(img_show, img_show, Size(img.cols*2, img.rows*2));
-      	imshow("Output Window", img_show); 
+      	imshow("Output Window", img); 
 		waitKey(1);
 	}
 
@@ -357,7 +358,7 @@ int red_detect(Mat &img_for_detect)
 {
 	Mat img_binary, img_hsv;
 
-	cvtColor(img_for_detect, img_hsv, COLOR_RGB2HSV); 
+	cvtColor(img_for_detect, img_hsv, COLOR_BGR2HSV); 
 	inRange(img_hsv, Scalar(HSV_CONST::RED_HL,HSV_CONST::RED_SL,HSV_CONST::RED_VL),\
 		Scalar(HSV_CONST::RED_HH,HSV_CONST::RED_SH,HSV_CONST::RED_VH), img_binary); 
 	erode(img_binary, img_binary, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
@@ -377,7 +378,7 @@ int green_detect(Mat &img_for_detect)
 {
 	Mat img_binary, img_hsv;
 
-	cvtColor(img_for_detect, img_hsv, COLOR_RGB2HSV); 
+	cvtColor(img_for_detect, img_hsv, COLOR_BGR2HSV); 
 	inRange(img_hsv, Scalar(HSV_CONST::GREEN_HL,HSV_CONST::GREEN_SL,HSV_CONST::GREEN_VL),\
 		Scalar(HSV_CONST::GREEN_HH,HSV_CONST::GREEN_SH,HSV_CONST::GREEN_VH), img_binary); 
 	erode(img_binary, img_binary, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
