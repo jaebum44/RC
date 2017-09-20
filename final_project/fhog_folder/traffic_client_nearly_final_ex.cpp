@@ -48,9 +48,10 @@ namespace HSV_CONST
 void* img_recv(void*);
 void* img_handler_tl(void*);
 void* img_handler_ts(void*);
+void* snd_handler_ts(void*);
+void create_msg_box(vector<dlib::rectangle> &, dlib::point* (&), Point* (&), int);
 int tlight_msg_handler(Mat &);
 int tsign_msg_handler(Mat &, int, dlib::rectangle &, char*);
-void create_msg_box(std::vector<dlib::rectangle> &, dlib::rectangle &);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
 int green_detect(Mat &);
@@ -158,7 +159,10 @@ void* img_handler_ts(void*arg)
 
 	dlib::object_detector<image_scanner_type> detector_tsign;
 	dlib::matrix <dlib::bgr_pixel>cimg;
-		
+
+	dlib::point*array_dpt;
+	Point*array_cpt;
+
 	vector<dlib::rectangle> dets_tsign;
 
 	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
@@ -185,12 +189,35 @@ void* img_handler_ts(void*arg)
 
 		if(dets_tsign.size())
 		{
-			cout<<"deteced child == slow"<<endl;
-			int ret = system("mpg123 child_sign_voice.mp3");
+			static int i=0;
+			//pthread_t pid;
+
+			array_dpt=new dlib::point[dets_tsign.size()<<1];
+			array_cpt=new Point[dets_tsign.size()<<1];
+
+			create_msg_box(dets_tsign, array_dpt, array_cpt, dets_tsign.size());
+			cout<<"deteced child == slow "<<i++<<endl;
+
+
+//			if(pthread_create(&pid, NULL, snd_handler_ts, NULL) < 0)
+//			{
+//				perror("snd_handler_ts failed");
+//			}
+
 			child_sign_on = 1;
+		
+			for(int i=0;i<dets_tsign.size();i++)
+			{
+				rectangle(img, array_cpt[i*2], array_cpt[i*2+1], cv::Scalar(0, 255, 0),3);
+			}
+
+			delete []array_dpt;
+			delete []array_cpt;
+	
+//			pthread_join(pid, (void**)&status);
 		}
-		else
-			cout<<"no detected child == fast"<<endl;
+	//	else
+	//		cout<<"no detected child == fast"<<endl;
 
 		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
 		
@@ -201,8 +228,6 @@ void* img_handler_ts(void*arg)
 
 		child_sign_on = 0;
 			
-		//cvtColor(img, img_show, CV_RGB2BGR);
-		//pyrUp(img_show, img_show, Size(img.cols*2, img.rows*2));
       	imshow("Output Window", img); 
 		waitKey(1);
 	}
@@ -222,6 +247,9 @@ void* img_handler_tl(void*arg)
 
 	dlib::object_detector<image_scanner_type> detector_tlight;
 	dlib::matrix <dlib::bgr_pixel>cimg;
+
+	dlib::point*array_dpt;
+	Point*array_cpt;
 		
 	vector<dlib::rectangle> dets_tlight;
 
@@ -248,8 +276,36 @@ void* img_handler_tl(void*arg)
 	
 			if(dets_tlight.size())
 			{
-				cout<<"detected traffic light RED"<<endl;
-				red_sign_on  = 2;
+				int*detect_in=new int[dets_tlight.size()];
+				Mat*red=new Mat[dets_tlight.size()];
+				array_dpt=new dlib::point[dets_tlight.size()<<1];
+				array_cpt=new Point[dets_tlight.size()<<1];
+				
+				create_msg_box(dets_tlight, array_dpt, array_cpt, dets_tlight.size());
+				
+
+				for(int i=0;i<dets_tlight.size();i++)
+				{
+					detect_in[i]=0;
+					Rect roi(array_cpt[i*2].x,array_cpt[i*2].y,array_cpt[i*2+1].x-array_cpt[i*2].x,array_cpt[i*2+1].y-array_cpt[i*2].y);
+					red[i]=img(roi);
+					detect_in[i] = tlight_msg_handler(red[i]);
+
+					if(detect_in[i])
+					{
+						static int i=0;
+						cout<<"detected traffic light RED"<<i++<<endl;
+						red_sign_on = 2;
+					//	rectangle(img, array_cpt[i*2], array_cpt[i*2+1], cv::Scalar(0, 255, 0),3);
+					}
+					
+					red_sign_on = 0;
+				}
+				
+				delete []detect_in;
+				delete []red;
+				delete []array_dpt;
+				delete []array_cpt;
 			}
 			else
 				red_sign_on = 0;
@@ -259,22 +315,24 @@ void* img_handler_tl(void*arg)
 	}
 }
 
-//void create_msg_box(std::vector<dlib::rectangle> &dets, dlib::rectangle &r)
-//{
-//	if(dets.size())
-//	{
-//		if(dets[0].left() > 0)
-//			r.left() = dets[0].left();
-//		else
-//			r.left() = 0;
-//		r.bottom() = dets[0].bottom();
-//		r.right() = dets[0].right();
-//		if(dets[0].top() > 0)
-//			r.top() = dets[0].top();
-//		else
-//			r.top() = 0;
-//	}
-//}
+void create_msg_box(vector<dlib::rectangle> &dets, dlib::point*(&array_dpt), Point*(&array_cpt), int size)
+{
+	for(int i=0;i<size;i++)
+	{
+		array_dpt[i*2]=dets[i].tl_corner();
+		array_dpt[i*2+1]=dets[i].br_corner();
+
+		array_cpt[i*2].x=array_dpt[i*2].x()>>1;
+		array_cpt[i*2].y=array_dpt[i*2].y()>>1;
+		array_cpt[i*2+1].x=array_dpt[i*2+1].x()>>1;
+		array_cpt[i*2+1].y=array_dpt[i*2+1].y()>>1;
+	}
+}
+
+void* snd_handler_ts(void*arg)
+{
+	int ret = system("mpg123 child_sign_voice.mp3");
+}
 
 int tlight_msg_handler(Mat &img)
 {
@@ -285,16 +343,16 @@ int tlight_msg_handler(Mat &img)
 
 	if(red_positive%2 != 0)
 	{
-		cout<<endl;
-		cout<<"redsign == Stop"<<' '<<i<<endl;
-		cout<<endl;
+		//cout<<endl;
+		//cout<<"redsign == Stop"<<' '<<i<<endl;
+		//cout<<endl;
 		i++;
 		return 2;
 	}
 	else
 	{
-		cout<<endl;
-		cout<<"no red sign == Go"<<endl;
+		//cout<<endl;
+		//cout<<"no red sign == Go"<<endl;
 		if(red_positive)
 			return 1;
 	}
@@ -345,10 +403,10 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(red_positive > 1)
-		return 1;
-	else if(green_positive > 1)
+	if(green_positive > 1)
 		return 2;
+	else if(red_positive > 1)
+		return 1;
 	else
 		return 0;
 }
@@ -368,7 +426,7 @@ int red_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 8, CV_32S);  
 
-	cout<<"detected reds : "<<numOfLables-1<<endl;
+	//cout<<"detected reds : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
@@ -388,7 +446,7 @@ int green_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 4, CV_32S);  
 
-	cout<<"detected greens : "<<numOfLables-1<<endl;
+	//cout<<"detected greens : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
