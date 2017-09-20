@@ -139,7 +139,10 @@ void* img_recv(void*arg)
 	while(1) 
 	{ 
 		vcap.read(img); 
+<<<<<<< HEAD
 //		cvtColor(img, img, CV_RGB2BGR);
+=======
+>>>>>>> 11fe8f48bed427ee3303bf876a7fac1cca0d28e1
 		sem_post(&recv_sync);	
 	} 		
 }
@@ -346,10 +349,10 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(green_positive > 1)
-		return 2;
-	else if(red_positive > 1)
+	if(red_positive > 1)
 		return 1;
+	else if(green_positive > 1)
+		return 2;
 	else
 		return 0;
 }
