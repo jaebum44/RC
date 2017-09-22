@@ -230,7 +230,7 @@ void* img_handler(void*arg)
 
 			create_msg_box(dets_tlight, array_dpt_tl, array_cpt_tl, dets_tlight.size());
 	
-			cout<<"0x  0y   1x  1y"<<' '<<array_cpt_tl[0].x<<' '<<array_cpt_tl[0].y<<' '<<array_cpt_tl[1].x<<' '<<array_cpt_tl[1].y<<endl;
+		//	cout<<"0x  0y   1x  1y"<<' '<<array_cpt_tl[0].x<<' '<<array_cpt_tl[0].y<<' '<<array_cpt_tl[1].x<<' '<<array_cpt_tl[1].y<<endl;
 
 			create_color_box(Color, array_cpt_tl, dets_tlight.size());
 		
@@ -238,12 +238,14 @@ void* img_handler(void*arg)
 			for(int i=0;i<dets_tlight.size();i++)
 			{
 				detect_color = tlight_msg_handler(Color[i]);
+				
+				rectangle(img, array_cpt_tl[i*2], array_cpt_tl[i*2+1], cv::Scalar(0, 255, 0),3);
 			
 				if(detect_color>>1)
 				{
 					cout<<"detected traffic light GREEN "<<i++<<endl;
 					red_sign_on = 0;
-					rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
+				//	rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
 				}
 				else
 				{
@@ -251,10 +253,11 @@ void* img_handler(void*arg)
 					{
 						cout<<"detected traffic light RED == STOP!!"<<i++<<endl;
 						red_sign_on = 2;
-						rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
+				//		rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
 					}
+					else
+						red_sign_on = 0;
 
-					red_sign_on = 0;
 				}
 			}
 
@@ -273,7 +276,7 @@ void* img_handler(void*arg)
 			perror("send to traffic server failed");
 		}
 			
-		detect_color = 0;
+	//	detect_color = 0;
       	
 		imshow("Output Window", img); 
 		waitKey(1);
