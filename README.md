@@ -5,10 +5,10 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 | junghwk | yeogue | jaebum44 | desung7 |
 | :---: | :---: | :---: | :---: |
-| OpenCV | device driver | device driver | dlib |
-| dlib |git management | hardware | hardware |
-| network | Make document | network | network |
-| schedule management |  |  |  |
+| OpenCV | OpenCV | OpenCV | OpenCV |
+| dlib | device driver | device driver | dlib |
+| network | git management | network | network |
+| schedule management |  Make document |  |  |
 
 ## Table of content
 
