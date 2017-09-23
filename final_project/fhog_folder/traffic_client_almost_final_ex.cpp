@@ -38,9 +38,9 @@ namespace HSV_CONST
 {
 	enum
 	{
-		RED_HL =170, RED_SL =50, RED_VL =142,\
+		RED_HL =170, RED_SL =50, RED_VL =70,\
 		RED_HH =179, RED_SH =255, RED_VH =255,\
-		GREEN_HL =38, GREEN_SL =50, GREEN_VL =120,\
+		GREEN_HL =40, GREEN_SL =35, GREEN_VL =35,\
 		GREEN_HH =80, GREEN_SH =255, GREEN_VH =255
 	};
 }
@@ -50,6 +50,7 @@ void* img_handler(void*);
 void* snd_handler_ts(void*);
 void create_msg_box(vector<dlib::rectangle> &, dlib::point* (&), Point* (&), int);
 void create_color_box(Mat* (&), Point* (&), int);
+void create_msg_line(int, Point* (&));
 int tlight_msg_handler(Mat &);
 int tsign_msg_handler(Mat &, int, dlib::rectangle &, char*);
 int hsv_handler(Mat &);
@@ -181,7 +182,7 @@ void* img_handler(void*arg)
 	scanner_ts.set_detection_window_size(80, 80); 
 	scanner_ts.set_max_pyramid_levels(1); 
 	scanner_tl.set_detection_window_size(80, 170); 
-	scanner_tl.set_max_pyramid_levels(1);	
+	scanner_tl.set_max_pyramid_levels(2);	
 
 	while(1)
 	{
@@ -202,6 +203,7 @@ void* img_handler(void*arg)
 			array_cpt_ts=new Point[dets_tsign.size()<<1];
 
 			create_msg_box(dets_tsign, array_dpt_ts, array_cpt_ts, dets_tsign.size());
+
 			cout<<"deteced child == "<<dets_tsign.size()<<' '<<"slow!!"<<endl;
 
 			child_sign_on = 1;
@@ -210,7 +212,9 @@ void* img_handler(void*arg)
 			{
 				rectangle(img, array_cpt_ts[i*2], array_cpt_ts[i*2+1], cv::Scalar(0, 255, 0),3);
 			}
-
+	
+			create_msg_line(dets_tsign.size(), array_cpt_ts);
+				
 			delete []array_dpt_ts;
 			delete []array_cpt_ts;
 		}
@@ -240,12 +244,13 @@ void* img_handler(void*arg)
 				detect_color = tlight_msg_handler(Color[i]);
 				
 				rectangle(img, array_cpt_tl[i*2], array_cpt_tl[i*2+1], cv::Scalar(0, 255, 0),3);
-			
+		
+				create_msg_line((dets_tlight.size()<<1)+detect_color, array_cpt_tl);
+
 				if(detect_color>>1)
 				{
 					cout<<"detected traffic light GREEN "<<i++<<endl;
 					red_sign_on = 0;
-				//	rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
 				}
 				else
 				{
@@ -253,14 +258,13 @@ void* img_handler(void*arg)
 					{
 						cout<<"detected traffic light RED == STOP!!"<<i++<<endl;
 						red_sign_on = 2;
-				//		rectangle(img, array_cpt_tl[0], array_cpt_tl[1], cv::Scalar(0, 255, 0),3);
 					}
 					else
 						red_sign_on = 0;
 
 				}
 			}
-
+		
 			delete []Color;
 			delete []array_dpt_tl;
 			delete []array_cpt_tl;
@@ -268,17 +272,15 @@ void* img_handler(void*arg)
 		else
 			red_sign_on = 0;
 
-
 		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
 		
 		if(send(connSock, &buf, sizeof(buf), 0) < 0) 
 		{
 			perror("send to traffic server failed");
 		}
-			
-	//	detect_color = 0;
-      	
+
 		imshow("Output Window", img); 
+		
 		waitKey(1);
 	}
 }
@@ -331,6 +333,36 @@ void create_color_box(Mat* (&Color), Point*(&array_cpt_tl), int size)
 		Color[i]=img(roi);
 	}
 }	
+
+void create_msg_line(int t_size, Point*(&array_cpt))
+{
+	int font = 1;
+	int fscale = 1;
+	int thick = 1;
+	int ftype = CV_AA;
+
+	if(!(t_size>>1))
+	{
+		string ts_msg = "Child";
+		putText(img, ts_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+	}
+	else
+	{
+		if(t_size>>2)
+		{
+			string tl_green_msg = "GREEN";
+			putText(img, tl_green_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+		}
+		else
+		{
+			if(t_size&1)
+			{
+				string tl_red_msg = "RED";
+				putText(img, tl_red_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+			}
+		}
+	}
+}
 
 void* snd_handler_ts(void*arg)
 {
@@ -412,7 +444,7 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(green_positive > 1)
+	if(red_positive < 2 && green_positive > 1)
 		return 2;
 	else if(red_positive > 1)
 		return 1;
