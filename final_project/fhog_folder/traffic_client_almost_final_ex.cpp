@@ -50,13 +50,13 @@ void* img_handler(void*);
 void* snd_handler_ts(void*);
 void create_msg_box(vector<dlib::rectangle> &, dlib::point* (&), Point* (&), int);
 void create_color_box(Mat* (&), Point* (&), int);
-void create_msg_line(int, Point* (&));
+void create_msg_line(int, char*, Point* (&));
+float dist_detect(int, char*, Point* (&));
 int tlight_msg_handler(Mat &);
 int tsign_msg_handler(Mat &, int, dlib::rectangle &, char*);
 int hsv_handler(Mat &);
 int red_detect(Mat &);
 int green_detect(Mat &);
-float dist_detect(dlib::rectangle &);
 
 // 전역변수 class private로 바꾸기
 // 함수 깔끔하게 정리
@@ -198,6 +198,8 @@ void* img_handler(void*arg)
 		if(dets_tsign.size())
 		{
 			static int i = 0;
+			char dist_msg[15];
+			int size = 50;
 
 			array_dpt_ts=new dlib::point[dets_tsign.size()<<1];
 			array_cpt_ts=new Point[dets_tsign.size()<<1];
@@ -206,14 +208,19 @@ void* img_handler(void*arg)
 
 			cout<<"deteced child == "<<dets_tsign.size()<<' '<<"slow!!"<<endl;
 
-			child_sign_on = 1;
+			float distance=dist_detect(size, dist_msg, array_cpt_tl);
+			
+			if(distance < 25)
+				child_sign_on = 1;
 		
 			for(int i=0;i<dets_tsign.size();i++)
 			{
 				rectangle(img, array_cpt_ts[i*2], array_cpt_ts[i*2+1], cv::Scalar(0, 255, 0),3);
 			}
 	
-			create_msg_line(dets_tsign.size(), array_cpt_ts);
+			dist_detect(size, dist_msg, array_cpt_ts);
+
+			create_msg_line(dets_tsign.size(), dist_msg, array_cpt_ts);
 				
 			delete []array_dpt_ts;
 			delete []array_cpt_ts;
@@ -227,25 +234,26 @@ void* img_handler(void*arg)
 		if(dets_tlight.size())
 		{
 			static int i = 0;
+			char dist_msg[15];
+			int size = 50;
 
 			Color = new Mat[dets_tlight.size()];
 			array_dpt_tl = new dlib::point[dets_tlight.size()<<1];
 			array_cpt_tl = new Point[dets_tlight.size()<<1];
 
 			create_msg_box(dets_tlight, array_dpt_tl, array_cpt_tl, dets_tlight.size());
-	
-		//	cout<<"0x  0y   1x  1y"<<' '<<array_cpt_tl[0].x<<' '<<array_cpt_tl[0].y<<' '<<array_cpt_tl[1].x<<' '<<array_cpt_tl[1].y<<endl;
 
 			create_color_box(Color, array_cpt_tl, dets_tlight.size());
-		
 		
 			for(int i=0;i<dets_tlight.size();i++)
 			{
 				detect_color = tlight_msg_handler(Color[i]);
 				
 				rectangle(img, array_cpt_tl[i*2], array_cpt_tl[i*2+1], cv::Scalar(0, 255, 0),3);
-		
-				create_msg_line((dets_tlight.size()<<1)+detect_color, array_cpt_tl);
+
+				float distance=dist_detect(size, dist_msg, array_cpt_tl);
+
+				create_msg_line((dets_tlight.size()<<1)+detect_color, dist_msg, array_cpt_tl);
 
 				if(detect_color>>1)
 				{
@@ -257,11 +265,11 @@ void* img_handler(void*arg)
 					if(detect_color)
 					{
 						cout<<"detected traffic light RED == STOP!!"<<i++<<endl;
-						red_sign_on = 2;
+						if(distance < 25)
+							red_sign_on = 2;
 					}
 					else
 						red_sign_on = 0;
-
 				}
 			}
 		
@@ -334,34 +342,38 @@ void create_color_box(Mat* (&Color), Point*(&array_cpt_tl), int size)
 	}
 }	
 
-void create_msg_line(int t_size, Point*(&array_cpt))
+void create_msg_line(int t_size, char*dist_msg, Point*(&array_cpt))
 {
 	int font = 1;
 	int fscale = 1;
 	int thick = 1;
 	int ftype = CV_AA;
+	char put_msg[15];
 
-	if(!(t_size>>1))
-	{
-		string ts_msg = "Child";
-		putText(img, ts_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
-	}
-	else
-	{
-		if(t_size>>2)
+		if(!(t_size>>1))
 		{
-			string tl_green_msg = "GREEN";
-			putText(img, tl_green_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+			strcpy(put_msg, "Child");
+			putText(img, put_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+			putText(img, dist_msg, Point(10, img.rows - 10), font, fscale, Scalar::all(255), thick, ftype);
 		}
 		else
 		{
-			if(t_size&1)
+			if(t_size>>2)
 			{
-				string tl_red_msg = "RED";
-				putText(img, tl_red_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+				strcpy(put_msg, "GREEN");
+				putText(img, put_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+				putText(img, dist_msg, Point(img.cols - 90, img.rows - 10), font, fscale, Scalar::all(255), thick, ftype);
+			}
+			else
+			{
+				if(t_size&1)
+				{
+					strcpy(put_msg, "RED");
+					putText(img, put_msg, Point(array_cpt[0].x, array_cpt[0].y), font, fscale, Scalar::all(255), thick, ftype);
+					putText(img, dist_msg, Point(img.cols - 90, img.rows - 10), font, fscale, Scalar::all(255), thick, ftype);
+				}
 			}
 		}
-	}
 }
 
 void* snd_handler_ts(void*arg)
@@ -401,38 +413,31 @@ int tlight_msg_handler(Mat &img)
 	return 0;
 }
 
-//int tsign_msg_handler(Mat &img, int dets, dlib::rectangle &r, char*distance_msg)
-//{
-//	
-//	float distance;
-//	int i = 0;
-//	int red_positive;
-//		
-//	if(dets)
-//	{
-//		distance=dist_detect(r);
-//		sprintf(distance_msg,"  DISTANCE : %.2fCM\n",distance);
-//		
-//		if(distance < 20)
-//		{
-//			child_sign_on = 1;
-//			cout<<"Stop"<<' '<<i<<endl;
-//			i++;
-//		}
-//	}
-//
-//	sprintf(distance_msg,"  detected sign : %d\n",dets);
-//
-//	return 0;
-//}
-
-float dist_detect(dlib::rectangle &r)
+float dist_detect(int size, char*dist_msg, Point*(&array_cpt))
 {
-	//float v = (r.bottom() - r.top())/2+r.top();
-	float v = (r.right() - r.left())<<2;
-	float distance = 14/tan ((-3.1) + atan((v- 119.8) / 332.3));
-	cout<< "distance = "<<distance<<"cm"<<endl;
+	float v;
+	float t_pixel = 3264;
+	float f_length = 3.04;
+	float m_pixel = t_pixel / f_length;
+	float cvt_pixel;
+
+	float s_size;
+	float r_size;
+
+	r_size = size;
+
+	v = array_cpt[1].x - array_cpt[0].x;
+
+	cvt_pixel = m_pixel * img.cols * 2 /t_pixel;
+
+	s_size = v / cvt_pixel;
+
+	float distance = ((r_size * f_length) / s_size) / 10;
 	
+	cout<<distance<<" cm"<<endl;
+
+	sprintf(dist_msg,"%.2f cm",distance);	
+
 	return distance;
 }
 
