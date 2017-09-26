@@ -47,7 +47,11 @@ namespace HSV_CONST
 
 void* img_recv(void*);
 void* img_handler(void*);
+void* img_show(void*);
+void* img_detect_ts(void*);
+void* img_detect_tl(void*);
 void* snd_handler_ts(void*);
+void* snd_play(void*);
 void create_msg_box(vector<dlib::rectangle> &, dlib::point* (&), Point* (&), int);
 void create_color_box(Mat* (&), Point* (&), int);
 void create_msg_line(int, char*, Point* (&));
@@ -64,9 +68,31 @@ int green_detect(Mat &);
 
 Mat img;
 sem_t recv_sync;
-sem_t snd_sync;
-sem_t snd_sync2;
-int red_sign_on, child_sign_on, buf;
+sem_t ts_sync_snd;
+sem_t snd_sync_ts;
+sem_t ts_print;
+sem_t ts_delete;
+sem_t tl_print;
+sem_t tl_delete;
+
+int red_sign_on, child_sign_on, buf, sw;
+
+typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6>> image_scanner_type; 
+
+dlib::object_detector<image_scanner_type> detector_tlight;
+Mat*Color;
+dlib::point*array_dpt_tl;
+Point*array_cpt_tl;
+
+dlib::object_detector<image_scanner_type> detector_tsign;
+dlib::point*array_dpt_ts;
+Point*array_cpt_ts;
+
+vector<dlib::rectangle> dets_tlight;
+vector<dlib::rectangle> dets_tsign;
+
+int tlight_size;
+int tsign_size;
 
 int main(int argc, char** argv)
 {
@@ -119,22 +145,15 @@ int main(int argc, char** argv)
 		perror("pthread2 failed");
 		return -1;
 	}
-
-	/*while(1)
-	{
-		if(child_sign_on)
-			int ret = system("mpg123 child_sign_voice.mp3");
-	}*/
-
-	if(thr_id[2]=pthread_create(&pid[2], NULL, snd_handler_ts, NULL) < 0)
+/*	if(thr_id[2]=pthread_create(&pid[2], NULL, img_show, (void*)&connSock) < 0)
 	{
 		perror("pthread2 failed");
 		return -1;
-	}
+	}*/
 
 	pthread_join(pid[0], (void**)&status);
 	pthread_join(pid[1], (void**)&status);
-	pthread_join(pid[2], (void**)&status);
+//	pthread_join(pid[2], (void**)&status);
 
 	close(connSock);
 
@@ -144,7 +163,14 @@ int main(int argc, char** argv)
 void* img_recv(void*arg)
 {
 	VideoCapture vcap; 
+	pthread_t pid;
+	int status;
  
+	if(pthread_create(&pid, NULL, snd_handler_ts, NULL) < 0)
+	{
+		perror("pthread_tl failed");
+	}
+
 	string videoStreamAddress = "rtsp://192.168.1.105:8554/test";	
 	
 	vcap.open(videoStreamAddress);
@@ -153,156 +179,184 @@ void* img_recv(void*arg)
 	while(1) 
 	{ 
 		vcap.read(img);
-		sem_post(&recv_sync);	
+		//sem_post(&recv_sync);	
 	} 		
+
+	pthread_join(pid, (void**)&status);
 }
 
 void* img_handler(void*arg)
 {
 	int connSock = *(int*)arg;
-	int detect_color = 0;
+	pthread_t pid[3];
 	int status;
-	pthread_t pid;
+	int detect_color = 0;
+
+	char dist_msg[15];
+	int size = 50;
+
+	//sem_wait(&recv_sync);
+
+	if(pthread_create(&pid[0], NULL, img_detect_ts, (void*)&connSock) < 0)
+	{
+		perror("pthread_ts failed");
+	}
 	
-	typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6>> image_scanner_type; 
-	
-	image_scanner_type scanner_ts;
-	image_scanner_type scanner_tl;
-
-	dlib::object_detector<image_scanner_type> detector_tsign;
-	dlib::object_detector<image_scanner_type> detector_tlight;
-
-	dlib::matrix <dlib::bgr_pixel>cimg;
-
-	Mat*Color;
-
-	dlib::point*array_dpt_ts;
-	Point*array_cpt_ts;
-
-	dlib::point*array_dpt_tl;
-	Point*array_cpt_tl;
-
-	vector<dlib::rectangle> dets_tsign;
-	vector<dlib::rectangle> dets_tlight;
-
-	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
-	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
-
-	scanner_ts.set_detection_window_size(80, 80); 
-	scanner_ts.set_max_pyramid_levels(1); 
-	scanner_tl.set_detection_window_size(80, 170); 
-	scanner_tl.set_max_pyramid_levels(2);	
+	if(pthread_create(&pid[1], NULL, img_detect_tl, (void*)&connSock) < 0)
+	{
+		perror("pthread_tl failed");
+	}
 	
 	while(1)
 	{
-		sem_wait(&recv_sync);
-
-		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
-	
-		dlib::pyramid_up(cimg);	
-
-		dets_tsign = detector_tsign(cimg);
-		dets_tlight = detector_tlight(cimg);
-
-		if(dets_tsign.size())
+		if(tlight_size)
 		{
-			static int i = 0;
-			char dist_msg[15];
-			int size = 50;
+			Color = new Mat[tlight_size];
+			array_dpt_tl = new dlib::point[tlight_size<<1];
+			array_cpt_tl = new Point[tlight_size<<1];
 
-			array_dpt_ts=new dlib::point[dets_tsign.size()<<1];
-			array_cpt_ts=new Point[dets_tsign.size()<<1];
+			create_msg_box(dets_tlight, array_dpt_tl, array_cpt_tl, tlight_size);
+			create_color_box(Color, array_cpt_tl, tlight_size);
 
-			create_msg_box(dets_tsign, array_dpt_ts, array_cpt_ts, dets_tsign.size());
-
-			cout<<"deteced child == "<<dets_tsign.size()<<' '<<"slow!!"<<endl;
-
-			float distance=dist_detect(size, dist_msg, array_cpt_ts);
-			
-			//if(distance < 50)
-				child_sign_on = 1;
-
-				sem_post(&snd_sync);
-			//int ret = system("mpg123 child_sign_voice.mp3");
-
-				sem_wait(&snd_sync2);
-		
-			for(int i=0;i<dets_tsign.size();i++)
-			{
-				rectangle(img, array_cpt_ts[i*2], array_cpt_ts[i*2+1], cv::Scalar(0, 255, 0),3);
-			}
-
-			create_msg_line(dets_tsign.size(), dist_msg, array_cpt_ts);
-				
-			delete []array_dpt_ts;
-			delete []array_cpt_ts;
-		}
-		else
-		{
-			cout<<"detected child == "<<dets_tsign.size()<<endl;
-			child_sign_on = 0;
-			sem_wait(&snd_sync);
-		}
-
-		if(dets_tlight.size())
-		{
-			static int i = 0;
-			char dist_msg[15];
-			int size = 50;
-
-			Color = new Mat[dets_tlight.size()];
-			array_dpt_tl = new dlib::point[dets_tlight.size()<<1];
-			array_cpt_tl = new Point[dets_tlight.size()<<1];
-
-			create_msg_box(dets_tlight, array_dpt_tl, array_cpt_tl, dets_tlight.size());
-
-			create_color_box(Color, array_cpt_tl, dets_tlight.size());
-		
-			for(int i=0;i<dets_tlight.size();i++)
+			for(int i=0;i<tlight_size;i++)
 			{
 				detect_color = tlight_msg_handler(Color[i]);
-				
-				rectangle(img, array_cpt_tl[i*2], array_cpt_tl[i*2+1], cv::Scalar(0, 255, 0),3);
 
 				float distance=dist_detect(size, dist_msg, array_cpt_tl);
 
-				create_msg_line((dets_tlight.size()<<1)+detect_color, dist_msg, array_cpt_tl);
+				create_msg_line((tlight_size<<1)+detect_color, dist_msg, array_cpt_tl);
 
 				if(detect_color>>1)
 				{
-					cout<<"detected traffic light GREEN "<<i++<<endl;
+					cout<<"detected traffic light GREEN "<<endl;
 					red_sign_on = 0;
 				}
 				else
 				{
 					if(detect_color)
 					{
-						cout<<"detected traffic light RED == STOP!!"<<i++<<endl;
-						//if(distance < 50)
+						cout<<"detected traffic light RED == STOP!!"<<endl;
+	//					if(distance < 50)
 							red_sign_on = 2;
 					}
 					else
 						red_sign_on = 0;
 				}
 			}
-		
+
+			for(int i=0;i<tlight_size;i++)
+			{
+				rectangle(img, array_cpt_tl[i*2], array_cpt_tl[i*2+1], cv::Scalar(0, 255, 0),3);
+			}
+
 			delete []Color;
 			delete []array_dpt_tl;
 			delete []array_cpt_tl;
 		}
+		else if(tsign_size)
+		{
+			array_dpt_ts=new dlib::point[tsign_size<<1];
+			array_cpt_ts=new Point[tsign_size<<1];
+
+			if( sw == 0 )
+			{
+				int pid = fork();
+				if(pid == 0)
+				{
+					int ret = system("mpg123 child_sign_voice.mp3");
+					return NULL;
+				}
+			}
+
+			sw = 1;
+
+			cout<<"deteced child == "<<tsign_size<<' '<<"slow!!"<<endl;
+			
+			child_sign_on = 1;
+
+			create_msg_box(dets_tsign, array_dpt_ts, array_cpt_ts, tsign_size);
+			float distance=dist_detect(size, dist_msg, array_cpt_ts);
+			create_msg_line(tsign_size, dist_msg, array_cpt_ts);
+
+			for(int i=0;i<tsign_size;i++)
+			{
+				rectangle(img, array_cpt_ts[i*2], array_cpt_ts[i*2+1], cv::Scalar(0, 255, 0),3);
+			}
+
+			delete []array_dpt_ts;
+			delete []array_cpt_ts;
+		}
 		else
+		{
 			red_sign_on = 0;
+			child_sign_on = 0;
+		}
 
 		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
-		
+
 		if(send(connSock, &buf, sizeof(buf), 0) < 0) 
 		{
 			perror("send to traffic server failed");
 		}
-
+	
 		imshow("Output Window", img); 
-		
 		waitKey(1);
+	}
+
+	pthread_join(pid[0], (void**)&status);
+	pthread_join(pid[1], (void**)&status);
+}
+
+void* img_detect_ts(void*arg)
+{
+	int pid;
+	
+	image_scanner_type scanner_ts;
+
+	dlib::matrix <dlib::bgr_pixel>cimg;
+
+	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
+
+	scanner_ts.set_detection_window_size(80, 80); 
+	scanner_ts.set_max_pyramid_levels(1); 
+
+	while(1)
+	{	
+		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
+		
+		dlib::pyramid_up(cimg);	
+
+		//vector<dlib::rectangle> dets_tsign;
+
+		dets_tsign = detector_tsign(cimg);
+
+		tsign_size = dets_tsign.size();
+	}
+}
+
+void* img_detect_tl(void*arg)
+{
+	image_scanner_type scanner_tl;
+
+	dlib::matrix <dlib::bgr_pixel>cimg;
+
+	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
+
+	scanner_tl.set_detection_window_size(80, 170); 
+	scanner_tl.set_max_pyramid_levels(2);	
+
+	while(1)
+	{
+		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
+	
+		dlib::pyramid_up(cimg);	
+
+		//vector<dlib::rectangle> dets_tlight;
+
+		dets_tlight = detector_tlight(cimg);
+
+		tlight_size = dets_tlight.size();
+
 	}
 }
 
@@ -393,10 +447,12 @@ void* snd_handler_ts(void*arg)
 {
 	while(1)
 	{
-		sem_wait(&snd_sync);
+		//sem_wait(&ts_sync_snd);
+
 		if(child_sign_on)
 		{
-			sem_post(&snd_sync2);
+		//	sem_post(&snd_sync_ts);
+			
 			int ret = system("mpg123 child_sign_voice.mp3");
 		}
 	}
@@ -411,11 +467,16 @@ int tlight_msg_handler(Mat &img)
 
 	if(red_positive>>1)
 	{
+		//cout<<endl;
+		//cout<<"redsign == Stop"<<' '<<i<<endl;
+		//cout<<endl;
 		i++;
 		return 2;
 	}
 	else
 	{
+		//cout<<endl;
+		//cout<<"no red sign == Go"<<endl;
 		if(red_positive)
 			return 1;
 	}
@@ -459,7 +520,7 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(red_positive <=2 && green_positive > 1)
+	if(red_positive <= 2 && green_positive > 1)
 		return 2;
 	else if(red_positive > 1 && green_positive < 2)
 		return 1;
@@ -482,7 +543,7 @@ int red_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 8, CV_32S);  
 
-	cout<<"detected reds : "<<numOfLables-1<<endl;
+	//cout<<"detected reds : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
@@ -502,7 +563,7 @@ int green_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 4, CV_32S);  
 
-	cout<<"detected greens : "<<numOfLables-1<<endl;
+	//cout<<"detected greens : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }

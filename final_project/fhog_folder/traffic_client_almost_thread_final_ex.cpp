@@ -47,7 +47,11 @@ namespace HSV_CONST
 
 void* img_recv(void*);
 void* img_handler(void*);
+void* img_show(void*);
+void* img_detect_ts(void*);
+void* img_detect_tl(void*);
 void* snd_handler_ts(void*);
+void* snd_play(void*);
 void create_msg_box(vector<dlib::rectangle> &, dlib::point* (&), Point* (&), int);
 void create_color_box(Mat* (&), Point* (&), int);
 void create_msg_line(int, char*, Point* (&));
@@ -64,8 +68,8 @@ int green_detect(Mat &);
 
 Mat img;
 sem_t recv_sync;
-sem_t snd_sync;
-sem_t snd_sync2;
+sem_t ts_sync_snd;
+sem_t snd_sync_ts;
 int red_sign_on, child_sign_on, buf;
 
 int main(int argc, char** argv)
@@ -119,22 +123,15 @@ int main(int argc, char** argv)
 		perror("pthread2 failed");
 		return -1;
 	}
-
-	/*while(1)
-	{
-		if(child_sign_on)
-			int ret = system("mpg123 child_sign_voice.mp3");
-	}*/
-
-	if(thr_id[2]=pthread_create(&pid[2], NULL, snd_handler_ts, NULL) < 0)
+/*	if(thr_id[2]=pthread_create(&pid[2], NULL, img_show, (void*)&connSock) < 0)
 	{
 		perror("pthread2 failed");
 		return -1;
-	}
+	}*/
 
 	pthread_join(pid[0], (void**)&status);
 	pthread_join(pid[1], (void**)&status);
-	pthread_join(pid[2], (void**)&status);
+//	pthread_join(pid[2], (void**)&status);
 
 	close(connSock);
 
@@ -160,17 +157,51 @@ void* img_recv(void*arg)
 void* img_handler(void*arg)
 {
 	int connSock = *(int*)arg;
-	int detect_color = 0;
+	pthread_t pid[3];
 	int status;
-	pthread_t pid;
+
+	sem_wait(&recv_sync);
+
+	if(pthread_create(&pid[0], NULL, img_detect_ts, (void*)&connSock) < 0)
+	{
+		perror("pthread_ts failed");
+	}
 	
+	if(pthread_create(&pid[1], NULL, img_detect_tl, (void*)&connSock) < 0)
+	{
+		perror("pthread_tl failed");
+	}
+	
+	if(pthread_create(&pid[2], NULL, snd_handler_ts, NULL) < 0)
+	{
+		perror("pthread_tl failed");
+	}
+
+	while(1)
+	{
+		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
+		
+		if(send(connSock, &buf, sizeof(buf), 0) < 0) 
+		{
+			perror("send to traffic server failed");
+		}
+	
+		imshow("Output Window", img); 
+		waitKey(1);
+	}
+
+	pthread_join(pid[0], (void**)&status);
+	pthread_join(pid[1], (void**)&status);
+	pthread_join(pid[2], (void**)&status);
+}
+
+void* img_detect_ts(void*arg)
+{
 	typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6>> image_scanner_type; 
 	
 	image_scanner_type scanner_ts;
-	image_scanner_type scanner_tl;
 
 	dlib::object_detector<image_scanner_type> detector_tsign;
-	dlib::object_detector<image_scanner_type> detector_tlight;
 
 	dlib::matrix <dlib::bgr_pixel>cimg;
 
@@ -179,30 +210,20 @@ void* img_handler(void*arg)
 	dlib::point*array_dpt_ts;
 	Point*array_cpt_ts;
 
-	dlib::point*array_dpt_tl;
-	Point*array_cpt_tl;
-
 	vector<dlib::rectangle> dets_tsign;
-	vector<dlib::rectangle> dets_tlight;
 
 	dlib::deserialize("tsign_detector.svm") >> detector_tsign;
-	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
 
 	scanner_ts.set_detection_window_size(80, 80); 
 	scanner_ts.set_max_pyramid_levels(1); 
-	scanner_tl.set_detection_window_size(80, 170); 
-	scanner_tl.set_max_pyramid_levels(2);	
-	
-	while(1)
-	{
-		sem_wait(&recv_sync);
 
+	while(1)
+	{	
 		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
-	
+		
 		dlib::pyramid_up(cimg);	
 
 		dets_tsign = detector_tsign(cimg);
-		dets_tlight = detector_tlight(cimg);
 
 		if(dets_tsign.size())
 		{
@@ -219,13 +240,11 @@ void* img_handler(void*arg)
 
 			float distance=dist_detect(size, dist_msg, array_cpt_ts);
 			
-			//if(distance < 50)
+		//	if(distance < 50)
 				child_sign_on = 1;
 
-				sem_post(&snd_sync);
-			//int ret = system("mpg123 child_sign_voice.mp3");
-
-				sem_wait(&snd_sync2);
+				sem_post(&ts_sync_snd);
+				sem_wait(&snd_sync_ts);
 		
 			for(int i=0;i<dets_tsign.size();i++)
 			{
@@ -241,8 +260,41 @@ void* img_handler(void*arg)
 		{
 			cout<<"detected child == "<<dets_tsign.size()<<endl;
 			child_sign_on = 0;
-			sem_wait(&snd_sync);
 		}
+	}
+}
+
+void* img_detect_tl(void*arg)
+{
+	int detect_color = 0;
+	
+	typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6>> image_scanner_type; 
+	
+	image_scanner_type scanner_tl;
+
+	dlib::object_detector<image_scanner_type> detector_tlight;
+
+	dlib::matrix <dlib::bgr_pixel>cimg;
+
+	Mat*Color;
+
+	dlib::point*array_dpt_tl;
+	Point*array_cpt_tl;
+
+	vector<dlib::rectangle> dets_tlight;
+
+	dlib::deserialize("tlight3_detector.svm") >> detector_tlight;
+
+	scanner_tl.set_detection_window_size(80, 170); 
+	scanner_tl.set_max_pyramid_levels(2);	
+
+	while(1)
+	{
+		dlib::assign_image(cimg,dlib::cv_image<dlib::bgr_pixel>(img));
+	
+		dlib::pyramid_up(cimg);	
+
+		dets_tlight = detector_tlight(cimg);
 
 		if(dets_tlight.size())
 		{
@@ -278,7 +330,7 @@ void* img_handler(void*arg)
 					if(detect_color)
 					{
 						cout<<"detected traffic light RED == STOP!!"<<i++<<endl;
-						//if(distance < 50)
+	//					if(distance < 50)
 							red_sign_on = 2;
 					}
 					else
@@ -292,17 +344,6 @@ void* img_handler(void*arg)
 		}
 		else
 			red_sign_on = 0;
-
-		buf= red_sign_on | child_sign_on; // 0 fast, 1 slow, 2 stop, 3 slow and stop
-		
-		if(send(connSock, &buf, sizeof(buf), 0) < 0) 
-		{
-			perror("send to traffic server failed");
-		}
-
-		imshow("Output Window", img); 
-		
-		waitKey(1);
 	}
 }
 
@@ -393,10 +434,12 @@ void* snd_handler_ts(void*arg)
 {
 	while(1)
 	{
-		sem_wait(&snd_sync);
+		sem_wait(&ts_sync_snd);
+
 		if(child_sign_on)
 		{
-			sem_post(&snd_sync2);
+			sem_post(&snd_sync_ts);
+			
 			int ret = system("mpg123 child_sign_voice.mp3");
 		}
 	}
@@ -411,11 +454,16 @@ int tlight_msg_handler(Mat &img)
 
 	if(red_positive>>1)
 	{
+		//cout<<endl;
+		//cout<<"redsign == Stop"<<' '<<i<<endl;
+		//cout<<endl;
 		i++;
 		return 2;
 	}
 	else
 	{
+		//cout<<endl;
+		//cout<<"no red sign == Go"<<endl;
 		if(red_positive)
 			return 1;
 	}
@@ -459,7 +507,7 @@ int hsv_handler(Mat &img)
 	green_positive=green_detect(img);
 	red_positive=red_detect(img);
 
-	if(red_positive <=2 && green_positive > 1)
+	if(red_positive <= 2 && green_positive > 1)
 		return 2;
 	else if(red_positive > 1 && green_positive < 2)
 		return 1;
@@ -482,7 +530,7 @@ int red_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 8, CV_32S);  
 
-	cout<<"detected reds : "<<numOfLables-1<<endl;
+	//cout<<"detected reds : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
@@ -502,7 +550,7 @@ int green_detect(Mat &img_for_detect)
 	Mat img_labels, stats, centroids;  
 	int numOfLables = connectedComponentsWithStats(img_binary, img_labels, stats, centroids, 4, CV_32S);  
 
-	cout<<"detected greens : "<<numOfLables-1<<endl;
+	//cout<<"detected greens : "<<numOfLables-1<<endl;
 
 	return numOfLables;
 }
