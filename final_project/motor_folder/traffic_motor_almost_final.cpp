@@ -145,24 +145,24 @@ int init_motor()
 {
 	int init=1;
 	unsigned int max_write =5;
-		wiringPiSetup();
+	wiringPiSetup();
 
-		pinMode( RECV_PACK1, INPUT );
-		pinMode( RECV_PACK2, INPUT );
+	pinMode( RECV_PACK1, INPUT );
+	pinMode( RECV_PACK2, INPUT );
 
-		sem_init(&pwrite_sync , 1 ,5);
-		sem_init(&pread_sync , 0 ,5);
-		sem_init(&opencv_sync, 1,5);
-		
-		pinMode(in1, OUTPUT);
-		pinMode(in2, OUTPUT);
-		pinMode(in3, OUTPUT);
-		pinMode(in4, OUTPUT);
+	sem_init(&pwrite_sync , 1 ,5);
+	sem_init(&pread_sync , 0 ,5);
+	sem_init(&opencv_sync, 1,5);
+	
+	pinMode(in1, OUTPUT);
+	pinMode(in2, OUTPUT);
+	pinMode(in3, OUTPUT);
+	pinMode(in4, OUTPUT);
 
-		digitalWrite(in1, LOW);
-		digitalWrite(in2, HIGH);
-		digitalWrite(in3, HIGH);
-		digitalWrite(in4, LOW);
+	digitalWrite(in1, LOW);
+	digitalWrite(in2, HIGH);
+	digitalWrite(in3, HIGH);
+	digitalWrite(in4, LOW);
 }
 
 void*web_opencv(void*arg) 
@@ -177,7 +177,9 @@ void*web_opencv(void*arg)
 	float sl_servo;
 
 	int command[2];
+
 	sem_wait(&opencv_sync);
+
 	VideoCapture cap(0);
 
 	cap.set(CAP_PROP_FRAME_WIDTH,320);
@@ -222,9 +224,7 @@ void*web_opencv(void*arg)
 			line(image_rot1,Point(lines[i][0], lines[i][1]),Point(lines[i][2],lines[i][3]),Scalar(255,0,0),2,8);
 		}
 
-		//addWeighted(image_rot1, 1.0, image_rot1, 1.0, 0, image_rot1);
 		line(image_rot1,Point(image_rot1.cols/2,image_rot1.rows),Point(image_rot1.cols/2,image_rot1.rows>>2),Scalar(0,0,0),2,8);
-
 
 		sl_servo=(float)((-1)*(y_val_min)/sl_min);
 
@@ -253,7 +253,6 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 	{
 		if( sl_min > 0 && sl_servo < cols*PARAM_LEFT1)
 		{
-
 			if(sl_servo < cols*PARAM_LEFT2)
 			{
 				servo = 350;
@@ -325,11 +324,10 @@ void* servo_control(void*arg) //서보모터 구동부
 
 void* wheel_a(void*arg)  //dc모터 구동부
 {
-	int fd_pca =*(int*)arg;
+	int fd_pca = *(int*)arg;
 
 	while(1) 
 	{
-		
 		sem_wait(&motor_sync);
 		pca_channel4and5_on(&fd_pca);
 	}			
@@ -345,8 +343,7 @@ void pca_servo_on0(int time_val_on, int time_val_on1, int*fd)
 	reg_read16(CHANNEL0_ON_L, *fd_pca);
 		
 	reg_write16(CHANNEL0_OFF_L, time_val_on + time_val_on1, *fd_pca);
-	reg_read16(CHANNEL0_OFF_L,*fd_pca);
-
+	reg_read16(CHANNEL0_OFF_L, *fd_pca);
 }	
 	
 void pca_channel4and5_on(int*fd)
@@ -363,68 +360,86 @@ void pca_channel4and5_on(int*fd)
 	reg_read16(CHANNEL4_OFF_L, *fd_pca);
 
 	reg_write16(CHANNEL5_ON_L, 0,*fd_pca);
-	reg_read16(CHANNEL5_ON_L,*fd_pca);
+	reg_read16(CHANNEL5_ON_L, *fd_pca);
 
 	reg_write16(CHANNEL5_OFF_L, dc_motor, *fd_pca);
-	reg_read16(CHANNEL5_OFF_L,*fd_pca);
-
+	reg_read16(CHANNEL5_OFF_L, *fd_pca);
 }
 	
 int pca9685_freq(int fd)
 {
 	int length = 2, freq = 100, pca_addr = 0x40;
+	
 	unsigned char buffer[60] = {0};
-	uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq) -1;
-	printf("prescale_val = %d \n", prescale_val);
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	
+	uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq) - 1;
+	
+	printf("prescale_val = %d\n", prescale_val);
+	
+	if(ioctl(fd, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+	
 	buffer[0] = MODE1;
 	buffer[1] = 0x10;
-	if(write(fd,buffer,length) != length){
+	
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
 	
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd,I2C_SLAVE,pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+	
 	buffer[0] = PRE_SCALE;
 	buffer[1] = prescale_val;
-	if(write(fd,buffer,length) != length){
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
 	
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd,I2C_SLAVE,pca_addr)<0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+
 	buffer[0] = MODE1;
 	buffer[1] = 0x80;
-	if(write(fd,buffer,length) != length){
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
-	else{
-			printf("Data Mode1 %x\n",buffer[0]);
+	else
+	{
+		printf("Data Mode1 %x\n",buffer[0]);
 	}
 
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd,I2C_SLAVE,pca_addr)<0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+	
 	buffer[0] = MODE2;
 	buffer[1] = 0x04;
 	length = 2;
-	if(write(fd,buffer,length) != length){
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
-	else{
-			printf("Data Mode2 %x\n",buffer[0]);
+	else
+	{
+		printf("Data Mode2 %x\n",buffer[0]);
 	}
 }
 
@@ -433,95 +448,117 @@ int pca9685_reset(int fd)
 	unsigned char buffer[60] = {0};
 	int length, pca_addr = 0x40;
 	
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd,I2C_SLAVE,pca_addr)<0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+
 	buffer[0] = MODE1;
 	buffer[1] = 0x00;
 	length = 2;
-	if(write(fd,buffer,length) != length){
+	
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
-	else{
-			printf("Data Mode1 %x\n",buffer[0]);
+	else
+	{
+		printf("Data Mode1 %x\n", buffer[0]);
 	}
 
-	if(ioctl(fd,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd,I2C_SLAVE,pca_addr)<0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
+	
 	buffer[0] = MODE2;
 	buffer[1] = 0x04;
 	length = 2;
-	if(write(fd,buffer,length) != length){
+	
+	if(write(fd, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
-	else{
-		printf("Data Mode2 %x\n",buffer[0]);
+	else
+	{
+		printf("Data Mode2 %x\n", buffer[0]);
 	}
 }
 
 
-int reg_read16(int addr,int fd_pca)
+int reg_read16(int addr, int fd_pca)
 {
 	
 	unsigned char buffer[60] = {0};
 	int temp = 0 , length = 0;
-	// reg addr write 
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
-		printf("Failed to acquire bus access and/or talk to slave\n");
-		return 0;
-	}
-	buffer[0] = addr;
-	length =1;
-	if(write(fd_pca,buffer,length) != length){
-		printf("Failed to write from the i2c bus\n");
-		return 0;
-	}
-	// reg read 
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
+	
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
 	
-	if(read(fd_pca,buffer,length) != length){
+	buffer[0] = addr;
+	length =1;
+	if(write(fd_pca, buffer, length) != length)
+	{
+		printf("Failed to write from the i2c bus\n");
+		return 0;
+	}
+	
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
+		printf("Failed to acquire bus access and/or talk to slave\n");
+		return 0;
+	}
+	
+	if(read(fd_pca, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
 	temp = buffer[0];
-		// reg addr write 
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
+	
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
 	
 	buffer[0] = addr + 1;
-	if(write(fd_pca,buffer,length) != length){
+
+	if(write(fd_pca, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
-	// reg read 
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
+	
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
 	
-	if(read(fd_pca,buffer,length) != length){
+	if(read(fd_pca, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}
+
 	temp = buffer[0]<<8 | temp;
-//	printf("addr[%d] = %d\n",addr,temp);
 }
 
 int reg_write16(int addr, int data, int fd_pca)
 {
 	unsigned char buffer[60] = {0};
-	int length =2;
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
+	int length = 2;
+	
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
@@ -530,12 +567,14 @@ int reg_write16(int addr, int data, int fd_pca)
 	buffer[1] = data & 0xff;
 
 	
-	if(write(fd_pca,buffer,length) != length){
+	if(write(fd_pca, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}	
 
-	if(ioctl(fd_pca,I2C_SLAVE,pca_addr)<0){
+	if(ioctl(fd_pca, I2C_SLAVE, pca_addr) < 0)
+	{
 		printf("Failed to acquire bus access and/or talk to slave\n");
 		return 0;
 	}
@@ -543,26 +582,26 @@ int reg_write16(int addr, int data, int fd_pca)
 	buffer[0] = addr+1;
 	buffer[1] = (data>>8) & 0xff;
 
-	if(write(fd_pca,buffer,length) != length){
+	if(write(fd_pca, buffer, length) != length)
+	{
 		printf("Failed to write from the i2c bus\n");
 		return 0;
 	}	
-	//printf("addr[%d]= %d\n",addr,data);
 }
 
 int fileopen(void)
 {
 	int fd_pca;
-	if((fd_pca = open(filename, O_RDWR))<0){
+	
+	if((fd_pca = open(filename, O_RDWR)) < 0)
+	{
 		printf("Failed to open the i2c bus\n");
 		return -1;
 	}
+
 	pca9685_reset(fd_pca);
 	pca9685_freq(fd_pca);
 	
 	return fd_pca;	
 }
-
-
-
 
