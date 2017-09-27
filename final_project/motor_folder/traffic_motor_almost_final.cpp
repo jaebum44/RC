@@ -40,16 +40,16 @@ using namespace std;
 
 #define MAX_SL			3.5
 #define MIN_SL 			0.1
-#define SP_FAST			1250
-#define SP_SLOW			1100
+#define SP_FAST			1500
+#define SP_SLOW			1300
 #define SP_STOP			0
 #define SP_SLOW_STOP		0
 
-#define PARAM_LEFT1 	15>>4
+#define PARAM_LEFT1 	14>>4
 #define PARAM_LEFT2 	5>>4
 #define PARAM_LEFT3 	10>>4
 
-#define PARAM_RIGHT1 	1>>4
+#define PARAM_RIGHT1 	2>>4
 #define PARAM_RIGHT2 	11>>4
 #define PARAM_RIGHT3 	6>>4
 
@@ -72,7 +72,6 @@ using namespace std;
 #define CHANNEL5_OFF_H		0x1D
 #define ALL_LED_ON_L 		0xFA
 
-
 #define in1			4
 #define in2 			5
 #define in3 			26
@@ -83,13 +82,11 @@ using namespace std;
 
 #define sc(a,b,c,d) (float)(((float)(d)-(float)(b))/((float)(c)-(float)(a)))
 
-
 int motor_ctrl(float sl_servo,float sl_min, int cols);
 void*servo_control(void*arg);
 void*web_opencv(void*arg);
 void*wheel_a(void*arg);
 int init_motor(void);
-
 
 int pca9685_reset(int fd);
 int fileopen(void);
@@ -99,12 +96,11 @@ int reg_write16(int addr, int data, int fd_pca);
 int reg_read16(int addr,int fd_pca);
 void pca_channel4and5_on (int*fd);
 void pca_servo_on0(int time_val_on,int time_val_on1,int*fd);
-//void pca_servo_on1(int time_val_on,int time_val_on1);
 
 int servo;
-int dc_motor=1600;
+int dc_motor;
 
-int pca_addr =0x40;
+int pca_addr = 0x40;
 
 int DC[ 2 ][ 4 ] = {
 	SP_FAST, SP_SLOW,      SP_STOP, SP_SLOW_STOP,
@@ -154,24 +150,19 @@ int init_motor()
 		pinMode( RECV_PACK1, INPUT );
 		pinMode( RECV_PACK2, INPUT );
 
-	//	int fd = pca9685Setup(PIN_BASE, 0x40, HERTZ);
 		sem_init(&pwrite_sync , 1 ,5);
 		sem_init(&pread_sync , 0 ,5);
 		sem_init(&opencv_sync, 1,5);
-//sem_t pread_sync;
-//sem_t pwrite_sync;
-//sem_t motor_sync;
-//sem_t servo_sync;
 		
 		pinMode(in1, OUTPUT);
 		pinMode(in2, OUTPUT);
 		pinMode(in3, OUTPUT);
 		pinMode(in4, OUTPUT);
+
 		digitalWrite(in1, LOW);
 		digitalWrite(in2, HIGH);
 		digitalWrite(in3, HIGH);
 		digitalWrite(in4, LOW);
-//		pca9685PWMReset(fd);
 }
 
 void*web_opencv(void*arg) 
@@ -231,7 +222,7 @@ void*web_opencv(void*arg)
 			line(image_rot1,Point(lines[i][0], lines[i][1]),Point(lines[i][2],lines[i][3]),Scalar(255,0,0),2,8);
 		}
 
-		addWeighted(image_rot1, 1.0, image_rot1, 1.0, 0, image_rot1);
+		//addWeighted(image_rot1, 1.0, image_rot1, 1.0, 0, image_rot1);
 		line(image_rot1,Point(image_rot1.cols/2,image_rot1.rows),Point(image_rot1.cols/2,image_rot1.rows>>2),Scalar(0,0,0),2,8);
 
 
@@ -242,7 +233,9 @@ void*web_opencv(void*arg)
 		
 		dc_motor = DC[ command[0] ][ command[1] ];
 
-		//printf("%.2f\n",sl_min);
+		printf("%d\n", dc_motor);
+
+		printf("command =  %d %d\n", command[0],  command[1]);
 		motor_ctrl(sl_servo,sl_min,src.cols);
 
 		delete []array_sl;
@@ -261,55 +254,54 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 		if( sl_min > 0 && sl_servo < cols*PARAM_LEFT1)
 		{
 
-			if(sl_servo < cols*PARAM_LEFT2)//ambiguating
+			if(sl_servo < cols*PARAM_LEFT2)
 			{
-				servo=300;
-				dc_motor= 600;
+				servo = 350;
+				dc_motor *= 1.3;
 				printf("turn left %d\n",dc_motor);
 			}
 			else if(sl_servo < cols*PARAM_LEFT3)
 			{
-				servo=350;
-				dc_motor= 300;
+				servo = 400;
+				dc_motor *= 1.2;
 				printf("turn little left %d\n",dc_motor);
 			}
 			else
 			{
-				servo=450;
-				dc_motor=0;
+				servo = 450;
 				printf("left correction %d\n",dc_motor);
 			}
-			
-				sem_post(&servo_sync);
+
+			sem_post(&servo_sync);
 		}
 		else if( sl_min < 0 &&  sl_servo > cols*PARAM_RIGHT1) 
 		{
 
 			if(sl_servo > cols*PARAM_RIGHT2)
 			{
-				servo=700;
-				dc_motor= 600;
+				servo = 650;
+				dc_motor *= 1.3;
 				printf("turn right %d\n",dc_motor);
 			}
 			else if(sl_servo > cols*PARAM_RIGHT3)
 			{
-				servo=600;
-				dc_motor=300 ;
+				servo = 600;
+				dc_motor *= 1.2 ;
 				printf("turn little right %d\n",dc_motor);
 			}
 			else
 			{
-				servo=530;
-				dc_motor=0;
+				servo=520;
 				printf("right correction %d\n",dc_motor);
 			}				
-				sem_post(&servo_sync);
+			
+			sem_post(&servo_sync);
 		}		
 		else
 		{
 			printf("forward\n");
 			servo=500;
-			dc_motor=0;
+			dc_motor *= 1.2 ;
 			sem_post(&servo_sync);
 		}
 	}
@@ -317,64 +309,63 @@ int motor_ctrl(float sl_servo, float sl_min, int cols)
 	return 0;
 }
 
-void*servo_control(void*arg) //서보모터 구동부
+void* servo_control(void*arg) //서보모터 구동부
 {
-	int fd_pca = *(int *)arg;
-	while(1){
+	int fd_pca = *(int*)arg;
+
+	while(1)
+	{
 		sem_wait(&servo_sync);
-		pca_servo_on0(1000 ,servo,&fd_pca);//50 맨왼쪽으로 회전
+		pca_servo_on0(1000 ,servo, &fd_pca);//50 맨왼쪽으로 회전
 		delay(50);
 		sem_post(&motor_sync);
 	}
 }
 
 
-void*wheel_a(void*arg)  //dc모터 구동부
+void* wheel_a(void*arg)  //dc모터 구동부
 {
-	int fd_pca =*(int *)arg;
-	
+	int fd_pca =*(int*)arg;
 
-	while(1) {
+	while(1) 
+	{
 		
 		sem_wait(&motor_sync);
 		pca_channel4and5_on(&fd_pca);
-
 	}			
 }
 
-void pca_servo_on0(int time_val_on,int time_val_on1,int *fd)
+void pca_servo_on0(int time_val_on, int time_val_on1, int*fd)
 {
-	int *fd_pca;
-	*fd_pca =*fd;
+	int*fd_pca;
+
+	*fd_pca = *fd;
+
 	reg_write16(CHANNEL0_ON_L, time_val_on, *fd_pca);
-	reg_read16(CHANNEL0_ON_L,*fd_pca);
-		
+	reg_read16(CHANNEL0_ON_L, *fd_pca);
 		
 	reg_write16(CHANNEL0_OFF_L, time_val_on + time_val_on1, *fd_pca);
 	reg_read16(CHANNEL0_OFF_L,*fd_pca);
 
 }	
-
-
 	
-void pca_channel4and5_on (int*fd)
+void pca_channel4and5_on(int*fd)
 {
-	int *fd_pca;
-	*fd_pca =*fd;
+	int*fd_pca;
+	*fd_pca = *fd;
 	int time_val_on = 0;
 	char key;
-	int time_val_on4=1600;//max 4096
 	
 	reg_write16(CHANNEL4_ON_L, 0, *fd_pca);
-	reg_read16(CHANNEL4_ON_L,*fd_pca);
+	reg_read16(CHANNEL4_ON_L, *fd_pca);
 
-	reg_write16(CHANNEL4_OFF_L, time_val_on4+dc_motor ,*fd_pca);
-	reg_read16(CHANNEL4_OFF_L,*fd_pca);
+	reg_write16(CHANNEL4_OFF_L, dc_motor, *fd_pca);
+	reg_read16(CHANNEL4_OFF_L, *fd_pca);
 
 	reg_write16(CHANNEL5_ON_L, 0,*fd_pca);
 	reg_read16(CHANNEL5_ON_L,*fd_pca);
 
-	reg_write16(CHANNEL5_OFF_L,  time_val_on4+dc_motor, *fd_pca);
+	reg_write16(CHANNEL5_OFF_L, dc_motor, *fd_pca);
 	reg_read16(CHANNEL5_OFF_L,*fd_pca);
 
 }
@@ -469,7 +460,7 @@ int pca9685_reset(int fd)
 		return 0;
 	}
 	else{
-			printf("Data Mode2 %x\n",buffer[0]);
+		printf("Data Mode2 %x\n",buffer[0]);
 	}
 }
 
