@@ -2,7 +2,7 @@ Bit Autonomous RC Car Project
 ======================
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=DbtIL4QsVc0
-" target="_blank"><img src="http://img.youtube.com/vi/DbtIL4QsVc0/0.jpg" width="360" height="240" border="10" /></a>
+" target="_blank"><img src="http://img.youtube.com/vi/DbtIL4QsVc0/0.jpg" width="720" height="480" border="10" /></a>
 
 Note: this repository was created for the final project of bit IoT embedded system developer course and won't receive any major updates after completion. We are still in progrss though you can use this repository as a study reference or for some practical purposes.
 
