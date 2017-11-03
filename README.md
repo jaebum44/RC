@@ -26,10 +26,6 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 - [Machine Learning](#machine-learning)
 
-- [Network](#network)
-
-- [Device Driver](#device-driver)
-
 - [Documents](#documents)
     - [Pamphlet](#pamphlet)
     - [Technical Documents](#technical-documents)
@@ -268,10 +264,6 @@ dlib::deserialize("my.svm") >> detector;
 **Note:**  This format is crucial. `*_ex` 
 
 **Note:**  To compile using `cmake` in dir/build, make your own customized CMakeLists.txt 
-
-## Network
-
-## Device Driver
 
 ## Documents
 
