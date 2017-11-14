@@ -51,7 +51,7 @@ Note: this repository was created for the final project of bit IoT embedded syst
 
 ### Flow Chart
 
-![fc]
+![fc](./img/flow_chart_final.jpg)
 
 ## OpenCV
 
